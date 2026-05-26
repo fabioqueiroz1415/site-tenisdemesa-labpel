@@ -98,12 +98,13 @@ def presenca_salvar():
     tipo     = dados["tipo"]
     data     = dados["data"]
     conteudo = dados["conteudo"]
-    sha      = dados.get("sha") or None
     path = f"{tipo}/frequencia/presencas/{data}.txt"
-    ok, resp = github_put(path, conteudo, sha=sha, message=f"presença {tipo} {data}")
-    # Devolve o SHA novo para o frontend não precisar recarregar
-    novo_sha = resp.get("content", {}).get("sha") if ok else None
-    return jsonify({"ok": ok, "sha": novo_sha, "github": resp})
+    # Se o arquivo já existe, apaga antes de criar
+    conteudo_atual, sha_atual = github_get(path)
+    if conteudo_atual is not None:
+        github_delete(path, sha_atual, message=f"apaga presença {tipo} {data} para recriar")
+    ok, resp = github_put(path, conteudo, message=f"presença {tipo} {data}")
+    return jsonify({"ok": ok, "github": resp})
 
 
 @app.route("/api/presenca/estatisticas")

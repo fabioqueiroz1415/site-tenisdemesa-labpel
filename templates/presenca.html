@@ -26,7 +26,6 @@
 
   <script>
     const HOJE = "{{ hoje }}";
-    let shaPresenca = null;
 
     // Dia da semana a partir de dd-mm-aa
     function diaSemana(ddmmaa) {
@@ -57,8 +56,6 @@
       const jsonAlunos   = await respAlunos.json();
       const jsonPresenca = await respPresenca.json();
       const jsonStats    = await respStats.json();
-
-      shaPresenca = jsonPresenca.sha || null;
 
       const jaPresentes = new Set(
         (jsonPresenca.conteudo || "").split("\n").map(n => n.trim()).filter(Boolean)
@@ -134,36 +131,13 @@
       const resp = await fetch("/api/presenca/salvar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo, data: HOJE, conteudo, sha: shaPresenca })
+        body: JSON.stringify({ tipo, data: HOJE, conteudo })
       });
       const json = await resp.json();
       if (json.ok) {
-        shaPresenca = json.sha;  // SHA novo vindo direto do GitHub após o commit
         document.getElementById("status").textContent = "✓ Salvo!";
       } else {
-        // Se o SHA estava desatualizado, busca o SHA atual e tenta de novo automaticamente
-        const motivo = json.github?.message || JSON.stringify(json.github);
-        if (motivo && motivo.includes("sha")) {
-          document.getElementById("status").textContent = "Atualizando SHA e tentando novamente...";
-          const r2 = await fetch(`/api/presenca/carregar?tipo=${tipo}&data=${HOJE}`);
-          const j2 = await r2.json();
-          shaPresenca = j2.sha || null;
-          // Tenta salvar de novo com o SHA correto
-          const resp2 = await fetch("/api/presenca/salvar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ tipo, data: HOJE, conteudo, sha: shaPresenca })
-          });
-          const json2 = await resp2.json();
-          if (json2.ok) {
-            shaPresenca = json2.sha;
-            document.getElementById("status").textContent = "✓ Salvo!";
-          } else {
-            document.getElementById("status").textContent = "✗ Erro ao salvar: " + (json2.github?.message || JSON.stringify(json2.github));
-          }
-        } else {
-          document.getElementById("status").textContent = "✗ Erro ao salvar: " + motivo;
-        }
+        document.getElementById("status").textContent = "✗ Erro ao salvar: " + (json.github?.message || JSON.stringify(json.github));
       }
     }
 
