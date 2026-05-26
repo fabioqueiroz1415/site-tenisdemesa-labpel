@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 
 # --- Configuração do GitHub ---
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "token")
+GITHUB_TOKEN = "labpel" #os.environ.get("GITHUB_TOKEN", "token")
 GITHUB_USER = os.environ.get("GITHUB_USER", "labpel")
 GITHUB_REPO = os.environ.get("GITHUB_REPO", "site-tenisdemesa-labpel")
 GITHUB_BRANCH = os.environ.get("GITHUB_BRANCH", "main")
