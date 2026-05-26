@@ -10,25 +10,25 @@ load_dotenv()
 app = Flask(__name__)
 
 # --- Configuração do GitHub ---
-GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN")
-GITHUB_USER   = os.environ.get("GITHUB_USER")
-GITHUB_REPO   = os.environ.get("GITHUB_REPO")
-GITHUB_BRANCH = os.environ.get("GITHUB_BRANCH", "main")
+GITHUB_TOKEN  = os.getenv("GITHUB_TOKEN")
+GITHUB_USER   = os.getenv("GITHUB_USER")
+GITHUB_REPO   = os.getenv("GITHUB_REPO")
+GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "main")
 
 
 def get_headers():
     return {
-        "Authorization": f"token {os.environ.get('GITHUB_TOKEN', GITHUB_TOKEN)}",
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN', GITHUB_TOKEN)}",
         "Accept": "application/vnd.github.v3+json",
     }
 
 def base_url():
-    user = os.environ.get("GITHUB_USER", GITHUB_USER)
-    repo = os.environ.get("GITHUB_REPO", GITHUB_REPO)
+    user = os.getenv("GITHUB_USER", GITHUB_USER)
+    repo = os.getenv("GITHUB_REPO", GITHUB_REPO)
     return f"https://api.github.com/repos/{user}/{repo}/contents"
 
 def branch():
-    return os.environ.get("GITHUB_BRANCH", GITHUB_BRANCH)
+    return os.getenv("GITHUB_BRANCH", GITHUB_BRANCH)
 
 
 def github_get(path):
@@ -137,8 +137,8 @@ def alunos_salvar():
 @app.route("/ensino")
 def ensino():
     tipo = request.args.get("tipo", "iniciacao")
-    user = os.environ.get("GITHUB_USER", GITHUB_USER)
-    repo = os.environ.get("GITHUB_REPO", GITHUB_REPO)
+    user = os.getenv("GITHUB_USER", GITHUB_USER)
+    repo = os.getenv("GITHUB_REPO", GITHUB_REPO)
     br   = branch()
     plano_url = f"https://github.com/{user}/{repo}/blob/{br}/{tipo}/ensino/plano.md"
     aulas = github_list(f"{tipo}/ensino/aulas")
