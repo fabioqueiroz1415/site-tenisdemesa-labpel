@@ -7,15 +7,15 @@ import os
 app = Flask(__name__)
 
 # --- Configuração do GitHub ---
-# GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "token")
+GITHUB_TOKEN = os.environ.get("GITHUB TOKEN", "no token")
 GITHUB_USER = os.environ.get("GITHUB_USER", "labpel")
 GITHUB_REPO = os.environ.get("GITHUB_REPO", "site-tenisdemesa-labpel")
 GITHUB_BRANCH = os.environ.get("GITHUB_BRANCH", "main")
 
-# HEADERS = {
-#     "Authorization": f"token {GITHUB_TOKEN}",
-#     "Accept": "application/vnd.github.v3+json",
-# }
+HEADERS = {
+    "Authorization": f"token {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github.v3+json",
+}
 
 BASE_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents"
 
