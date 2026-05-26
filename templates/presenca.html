@@ -14,10 +14,9 @@
     <option value="aprimoramento" {% if tipo == 'aprimoramento' %}selected{% endif %}>Aprimoramento</option>
   </select>
 
-  <p><strong>Data:</strong> <span id="data-display">{{ hoje }}</span></p>
+  <p><strong>Data:</strong> {{ hoje }} (<span id="dia-semana"></span>)</p>
 
   <br>
-  <strong>Alunos presentes:</strong><br>
   <div id="lista-alunos">Carregando...</div>
   <div id="debug" style="color:red;font-size:0.85em"></div>
 
@@ -26,11 +25,18 @@
   <span id="status"></span>
 
   <script>
+    const HOJE = "{{ hoje }}";
     let shaPresenca = null;
 
-    function getData() {
-      return "{{ hoje }}";
+    // Dia da semana a partir de dd-mm-aa
+    function diaSemana(ddmmaa) {
+      const [d, m, a] = ddmmaa.split("-");
+      const ano = parseInt(a) + 2000;
+      const data = new Date(ano, parseInt(m) - 1, parseInt(d));
+      return ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"][data.getDay()];
     }
+
+    document.getElementById("dia-semana").textContent = diaSemana(HOJE);
 
     function getTipo() {
       return document.getElementById("tipo").value;
@@ -41,20 +47,25 @@
       document.getElementById("status").textContent = "";
       document.getElementById("debug").textContent = "";
       const tipo = getTipo();
-      const data = getData();
 
-      const [respAlunos, respPresenca] = await Promise.all([
+      // Busca os três em paralelo
+      const [respAlunos, respPresenca, respStats] = await Promise.all([
         fetch(`/api/alunos/carregar?tipo=${tipo}`),
-        fetch(`/api/presenca/carregar?tipo=${tipo}&data=${data}`)
+        fetch(`/api/presenca/carregar?tipo=${tipo}&data=${HOJE}`),
+        fetch(`/api/presenca/estatisticas?tipo=${tipo}`)
       ]);
-      const jsonAlunos = await respAlunos.json();
+      const jsonAlunos   = await respAlunos.json();
       const jsonPresenca = await respPresenca.json();
+      const jsonStats    = await respStats.json();
 
       shaPresenca = jsonPresenca.sha || null;
 
       const jaPresentes = new Set(
         (jsonPresenca.conteudo || "").split("\n").map(n => n.trim()).filter(Boolean)
       );
+
+      const stats      = jsonStats.stats      || {};
+      const totalAulas = jsonStats.total_aulas || 0;
 
       const div = document.getElementById("lista-alunos");
       div.innerHTML = "";
@@ -66,23 +77,55 @@
         return;
       }
 
+      // Monta tabela
+      const tabela = document.createElement("table");
+      tabela.setAttribute("border", "1");
+      tabela.setAttribute("cellpadding", "4");
+
+      // Cabeçalho
+      const thead = tabela.createTHead();
+      const tr = thead.insertRow();
+      ["Presente", "Aluno", "Presenças", "Faltas", "% Presença", "% Falta"].forEach(txt => {
+        const th = document.createElement("th");
+        th.textContent = txt;
+        tr.appendChild(th);
+      });
+
+      // Linhas
+      const tbody = tabela.createTBody();
       jsonAlunos.alunos.forEach(nome => {
-        const label = document.createElement("label");
+        const s = stats[nome] || { presencas: 0, faltas: totalAulas, pct_presenca: 0, pct_falta: 100 };
+        const row = tbody.insertRow();
+
+        // Checkbox
+        const tdCb = row.insertCell();
         const cb = document.createElement("input");
         cb.type = "checkbox";
         cb.value = nome;
         cb.checked = jaPresentes.has(nome);
-        label.appendChild(cb);
-        label.appendChild(document.createTextNode(" " + nome));
-        div.appendChild(label);
-        div.appendChild(document.createElement("br"));
+        tdCb.appendChild(cb);
+
+        // Nome
+        row.insertCell().textContent = nome;
+
+        // Estatísticas
+        row.insertCell().textContent = s.presencas;
+        row.insertCell().textContent = s.faltas;
+        row.insertCell().textContent = s.pct_presenca + "%";
+        row.insertCell().textContent = s.pct_falta + "%";
       });
+
+      div.appendChild(tabela);
+
+      if (totalAulas > 0) {
+        const p = document.createElement("p");
+        p.textContent = `Total de aulas registradas: ${totalAulas}`;
+        div.appendChild(p);
+      }
     }
 
     async function salvar() {
       const tipo = getTipo();
-      const data = getData();
-
       const checkboxes = document.querySelectorAll("#lista-alunos input[type=checkbox]:checked");
       const presentes = Array.from(checkboxes).map(cb => cb.value);
       const conteudo = presentes.join("\n") + (presentes.length ? "\n" : "");
@@ -91,7 +134,7 @@
       const resp = await fetch("/api/presenca/salvar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo, data, conteudo, sha: shaPresenca })
+        body: JSON.stringify({ tipo, data: HOJE, conteudo, sha: shaPresenca })
       });
       const json = await resp.json();
       document.getElementById("status").textContent = json.ok ? "✓ Salvo!" : "✗ Erro ao salvar.";
@@ -99,7 +142,6 @@
     }
 
     document.getElementById("tipo").addEventListener("change", carregar);
-
     carregar();
   </script>
 </body>
