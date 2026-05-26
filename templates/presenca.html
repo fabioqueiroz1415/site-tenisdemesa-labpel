@@ -137,8 +137,14 @@
         body: JSON.stringify({ tipo, data: HOJE, conteudo, sha: shaPresenca })
       });
       const json = await resp.json();
-      document.getElementById("status").textContent = json.ok ? "✓ Salvo!" : "✗ Erro ao salvar.";
-      if (json.ok) await carregar();
+      if (json.ok) {
+        shaPresenca = json.sha;  // atualiza o SHA imediatamente, sem recarregar tudo
+        document.getElementById("status").textContent = "✓ Salvo!";
+        await carregar();
+      } else {
+        const motivo = json.github?.message || JSON.stringify(json.github);
+        document.getElementById("status").textContent = "✗ Erro ao salvar: " + motivo;
+      }
     }
 
     document.getElementById("tipo").addEventListener("change", carregar);

@@ -101,7 +101,9 @@ def presenca_salvar():
     sha      = dados.get("sha") or None
     path = f"{tipo}/frequencia/presencas/{data}.txt"
     ok, resp = github_put(path, conteudo, sha=sha, message=f"presença {tipo} {data}")
-    return jsonify({"ok": ok, "github": resp})
+    # Devolve o SHA novo para o frontend não precisar recarregar
+    novo_sha = resp.get("content", {}).get("sha") if ok else None
+    return jsonify({"ok": ok, "sha": novo_sha, "github": resp})
 
 
 @app.route("/api/presenca/estatisticas")
@@ -183,13 +185,6 @@ def ensino():
     ]
     return render_template("ensino.html", tipo=tipo, plano_url=plano_url, aulas=aulas_urls)
 
-
-@app.route("/api/debug")
-def debug():
-    tipo = "iniciacao"
-    path = f"{tipo}/frequencia/alunos.txt"
-    url = f"{BASE_URL}/{path}?ref={BRANCH}"
-    return jsonify({"url": url, "token_comeca_com": TOKEN[:10] if TOKEN else "VAZIO"})
 
 if __name__ == "__main__":
     app.run(debug=True)
