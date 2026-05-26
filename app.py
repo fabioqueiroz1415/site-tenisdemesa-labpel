@@ -10,29 +10,21 @@ load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 app = Flask(__name__)
 
 # --- Configuração do GitHub ---
-GITHUB_TOKEN  = os.getenv("GITHUB_TOKEN")
-GITHUB_USER   = os.getenv("GITHUB_USER")
-GITHUB_REPO   = os.getenv("GITHUB_REPO")
-GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "main")
+TOKEN  = os.getenv("GITHUB_TOKEN")
+REPO   = os.getenv("GITHUB_REPO", "fabioqueiroz1415/tenisdemesa-labpel")
+BRANCH = os.getenv("GITHUB_BRANCH", "main")
 
+BASE_URL = f"https://api.github.com/repos/{REPO}/contents"
 
 def get_headers():
     return {
-        "Authorization": f"token {os.getenv('GITHUB_TOKEN', GITHUB_TOKEN)}",
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN', TOKEN)}",
         "Accept": "application/vnd.github.v3+json",
     }
 
-def base_url():
-    user = os.getenv("GITHUB_USER", GITHUB_USER)
-    repo = os.getenv("GITHUB_REPO", GITHUB_REPO)
-    return f"https://api.github.com/repos/{user}/{repo}/contents"
-
-def branch():
-    return os.getenv("GITHUB_BRANCH", GITHUB_BRANCH)
-
 
 def github_get(path):
-    url = f"{base_url()}/{path}?ref={branch()}"
+    url = f"{BASE_URL}/{path}?ref={BRANCH}"
     r = requests.get(url, headers=get_headers())
     if r.status_code == 200:
         data = r.json()
@@ -42,17 +34,26 @@ def github_get(path):
 
 
 def github_put(path, content_text, sha=None, message="update via flask"):
-    url = f"{base_url()}/{path}"
+    url = f"{BASE_URL}/{path}"
     encoded = base64.b64encode(content_text.encode("utf-8")).decode("utf-8")
-    payload = {"message": message, "content": encoded, "branch": branch()}
+    payload = {"message": message, "content": encoded, "branch": BRANCH}
     if sha:
         payload["sha"] = sha
     r = requests.put(url, headers=get_headers(), json=payload)
     return r.status_code in (200, 201), r.json()
 
 
+def github_list_files(path):
+    """Retorna lista de dicts {name, download_url} de arquivos numa pasta."""
+    url = f"{BASE_URL}/{path}?ref={BRANCH}"
+    r = requests.get(url, headers=get_headers())
+    if r.status_code == 200:
+        return [item for item in r.json() if item["type"] == "file"]
+    return []
+
+
 def github_list(path):
-    url = f"{base_url()}/{path}?ref={branch()}"
+    url = f"{BASE_URL}/{path}?ref={BRANCH}"
     r = requests.get(url, headers=get_headers())
     if r.status_code == 200:
         return [item["name"] for item in r.json() if item["type"] == "file"]
@@ -60,8 +61,8 @@ def github_list(path):
 
 
 def github_delete(path, sha, message="delete via flask"):
-    url = f"{base_url()}/{path}"
-    payload = {"message": message, "sha": sha, "branch": branch()}
+    url = f"{BASE_URL}/{path}"
+    payload = {"message": message, "sha": sha, "branch": BRANCH}
     r = requests.delete(url, headers=get_headers(), json=payload)
     return r.status_code == 200
 
@@ -103,6 +104,43 @@ def presenca_salvar():
     return jsonify({"ok": ok, "github": resp})
 
 
+@app.route("/api/presenca/estatisticas")
+def presenca_estatisticas():
+    """
+    Lê todos os arquivos de presença da turma e retorna, para cada aluno:
+    total de aulas, presenças, faltas e percentuais.
+    """
+    tipo = request.args.get("tipo")
+
+    # 1. Lista todos os arquivos de presença
+    arquivos = github_list_files(f"{tipo}/frequencia/presencas")
+    total_aulas = len(arquivos)
+
+    # 2. Conta presenças por aluno
+    contagem = {}  # nome -> nº de presenças
+    for arq in arquivos:
+        conteudo, _ = github_get(f"{tipo}/frequencia/presencas/{arq['name']}")
+        if not conteudo:
+            continue
+        for nome in conteudo.splitlines():
+            nome = nome.strip()
+            if nome:
+                contagem[nome] = contagem.get(nome, 0) + 1
+
+    # 3. Monta resultado
+    stats = {}
+    for nome, presencas in contagem.items():
+        faltas = total_aulas - presencas
+        stats[nome] = {
+            "presencas": presencas,
+            "faltas": faltas,
+            "pct_presenca": round(presencas / total_aulas * 100) if total_aulas else 0,
+            "pct_falta":    round(faltas    / total_aulas * 100) if total_aulas else 0,
+        }
+
+    return jsonify({"total_aulas": total_aulas, "stats": stats})
+
+
 # ── Template 2: Alunos ────────────────────────────────────────────────────────
 
 @app.route("/alunos")
@@ -137,13 +175,10 @@ def alunos_salvar():
 @app.route("/ensino")
 def ensino():
     tipo = request.args.get("tipo", "iniciacao")
-    user = os.getenv("GITHUB_USER", GITHUB_USER)
-    repo = os.getenv("GITHUB_REPO", GITHUB_REPO)
-    br   = branch()
-    plano_url = f"https://github.com/{user}/{repo}/blob/{br}/{tipo}/ensino/plano.md"
+    plano_url = f"https://github.com/{REPO}/blob/{BRANCH}/{tipo}/ensino/plano.md"
     aulas = github_list(f"{tipo}/ensino/aulas")
     aulas_urls = [
-        {"nome": a, "url": f"https://github.com/{user}/{repo}/blob/{br}/{tipo}/ensino/aulas/{a}"}
+        {"nome": a, "url": f"https://github.com/{REPO}/blob/{BRANCH}/{tipo}/ensino/aulas/{a}"}
         for a in aulas
     ]
     return render_template("ensino.html", tipo=tipo, plano_url=plano_url, aulas=aulas_urls)
