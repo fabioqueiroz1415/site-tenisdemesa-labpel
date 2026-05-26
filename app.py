@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-
+load_dotenv()
 # --- Configuração do GitHub ---
 GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN",  "seu_token_aqui")
 GITHUB_USER   = os.environ.get("GITHUB_USER",   "seu_usuario")
