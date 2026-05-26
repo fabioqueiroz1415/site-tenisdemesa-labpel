@@ -19,6 +19,7 @@
   <br>
   <strong>Alunos presentes:</strong><br>
   <div id="lista-alunos">Carregando...</div>
+  <div id="debug" style="color:red;font-size:0.85em"></div>
 
   <br>
   <button onclick="salvar()">Enviar presença</button>
@@ -38,10 +39,10 @@
     async function carregar() {
       document.getElementById("lista-alunos").textContent = "Carregando...";
       document.getElementById("status").textContent = "";
+      document.getElementById("debug").textContent = "";
       const tipo = getTipo();
       const data = getData();
 
-      // Busca alunos e presença já salva em paralelo
       const [respAlunos, respPresenca] = await Promise.all([
         fetch(`/api/alunos/carregar?tipo=${tipo}`),
         fetch(`/api/presenca/carregar?tipo=${tipo}&data=${data}`)
@@ -51,7 +52,6 @@
 
       shaPresenca = jsonPresenca.sha || null;
 
-      // Quem já estava marcado no arquivo salvo
       const jaPresentes = new Set(
         (jsonPresenca.conteudo || "").split("\n").map(n => n.trim()).filter(Boolean)
       );
@@ -61,6 +61,8 @@
 
       if (!jsonAlunos.alunos || jsonAlunos.alunos.length === 0) {
         div.textContent = "Nenhum aluno cadastrado nessa turma.";
+        document.getElementById("debug").textContent =
+          "Resposta de /api/alunos/carregar: " + JSON.stringify(jsonAlunos);
         return;
       }
 
