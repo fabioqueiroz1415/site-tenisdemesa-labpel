@@ -17,15 +17,15 @@
   <p><strong>Data:</strong> <span id="data-display">{{ hoje }}</span></p>
 
   <br>
-  <label for="presentes"><strong>Alunos presentes (um por linha):</strong></label><br>
-  <textarea id="presentes" rows="12" cols="40" placeholder="Carregando..."></textarea>
+  <strong>Alunos presentes:</strong><br>
+  <div id="lista-alunos">Carregando...</div>
 
-  <br><br>
+  <br>
   <button onclick="salvar()">Enviar presença</button>
   <span id="status"></span>
 
   <script>
-    let shaAtual = null;
+    let shaPresenca = null;
 
     function getData() {
       return "{{ hoje }}";
@@ -36,25 +36,60 @@
     }
 
     async function carregar() {
-      document.getElementById("presentes").value = "Carregando...";
+      document.getElementById("lista-alunos").textContent = "Carregando...";
       document.getElementById("status").textContent = "";
       const tipo = getTipo();
       const data = getData();
-      const resp = await fetch(`/api/presenca/carregar?tipo=${tipo}&data=${data}`);
-      const json = await resp.json();
-      document.getElementById("presentes").value = json.conteudo || "";
-      shaAtual = json.sha || null;
+
+      // Busca alunos e presença já salva em paralelo
+      const [respAlunos, respPresenca] = await Promise.all([
+        fetch(`/api/alunos/carregar?tipo=${tipo}`),
+        fetch(`/api/presenca/carregar?tipo=${tipo}&data=${data}`)
+      ]);
+      const jsonAlunos = await respAlunos.json();
+      const jsonPresenca = await respPresenca.json();
+
+      shaPresenca = jsonPresenca.sha || null;
+
+      // Quem já estava marcado no arquivo salvo
+      const jaPresentes = new Set(
+        (jsonPresenca.conteudo || "").split("\n").map(n => n.trim()).filter(Boolean)
+      );
+
+      const div = document.getElementById("lista-alunos");
+      div.innerHTML = "";
+
+      if (!jsonAlunos.alunos || jsonAlunos.alunos.length === 0) {
+        div.textContent = "Nenhum aluno cadastrado nessa turma.";
+        return;
+      }
+
+      jsonAlunos.alunos.forEach(nome => {
+        const label = document.createElement("label");
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.value = nome;
+        cb.checked = jaPresentes.has(nome);
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(" " + nome));
+        div.appendChild(label);
+        div.appendChild(document.createElement("br"));
+      });
     }
 
     async function salvar() {
       const tipo = getTipo();
       const data = getData();
-      const conteudo = document.getElementById("presentes").value.trim() + "\n";
+
+      const checkboxes = document.querySelectorAll("#lista-alunos input[type=checkbox]:checked");
+      const presentes = Array.from(checkboxes).map(cb => cb.value);
+      const conteudo = presentes.join("\n") + (presentes.length ? "\n" : "");
+
       document.getElementById("status").textContent = "Salvando...";
       const resp = await fetch("/api/presenca/salvar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo, data, conteudo, sha: shaAtual })
+        body: JSON.stringify({ tipo, data, conteudo, sha: shaPresenca })
       });
       const json = await resp.json();
       document.getElementById("status").textContent = json.ok ? "✓ Salvo!" : "✗ Erro ao salvar.";
