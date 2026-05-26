@@ -184,5 +184,12 @@ def ensino():
     return render_template("ensino.html", tipo=tipo, plano_url=plano_url, aulas=aulas_urls)
 
 
+@app.route("/api/debug")
+def debug():
+    tipo = "iniciacao"
+    path = f"{tipo}/frequencia/alunos.txt"
+    url = f"{BASE_URL}/{path}?ref={BRANCH}"
+    return jsonify({"url": url, "token_comeca_com": TOKEN[:10] if TOKEN else "VAZIO"})
+
 if __name__ == "__main__":
     app.run(debug=True)
