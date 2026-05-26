@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv
 import requests
 import base64
 from datetime import datetime
 import os
 
 app = Flask(__name__)
+load_dotenv()
 
 # --- Configuração do GitHub ---
 GITHUB_TOKEN = os.environ.get("GITHUB TOKEN", "no token")
