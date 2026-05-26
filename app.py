@@ -1,21 +1,20 @@
 from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv
 import requests
 import base64
 from datetime import datetime
 import os
-from dotenv import load_dotenv
+
+load_dotenv()  # carrega o .env da pasta do projeto
 
 app = Flask(__name__)
-load_dotenv()
+
 # --- Configuração do GitHub ---
-GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN",  "seu_token_aqui")
-GITHUB_USER   = os.environ.get("GITHUB_USER",   "seu_usuario")
-GITHUB_REPO   = os.environ.get("GITHUB_REPO",   "seu_repositorio")
+GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN")
+GITHUB_USER   = os.environ.get("GITHUB_USER")
+GITHUB_REPO   = os.environ.get("GITHUB_REPO")
 GITHUB_BRANCH = os.environ.get("GITHUB_BRANCH", "main")
 
-# ATENÇÃO: headers são montados aqui, mas o token já foi lido acima.
-# Se as variáveis de ambiente não estiverem definidas ANTES de iniciar o app,
-# o token ficará como "seu_token_aqui". Configure-as no painel do PythonAnywhere.
 
 def get_headers():
     return {
@@ -24,8 +23,8 @@ def get_headers():
     }
 
 def base_url():
-    user  = os.environ.get("GITHUB_USER",  GITHUB_USER)
-    repo  = os.environ.get("GITHUB_REPO",  GITHUB_REPO)
+    user = os.environ.get("GITHUB_USER", GITHUB_USER)
+    repo = os.environ.get("GITHUB_REPO", GITHUB_REPO)
     return f"https://api.github.com/repos/{user}/{repo}/contents"
 
 def branch():
@@ -33,14 +32,13 @@ def branch():
 
 
 def github_get(path):
-    """Busca um arquivo do GitHub. Retorna (conteúdo_texto, sha) ou (None, erro)."""
     url = f"{base_url()}/{path}?ref={branch()}"
     r = requests.get(url, headers=get_headers())
     if r.status_code == 200:
         data = r.json()
         content = base64.b64decode(data["content"]).decode("utf-8")
         return content, data["sha"]
-    return None, r.json()  # devolve o erro do GitHub para diagnóstico
+    return None, r.json()
 
 
 def github_put(path, content_text, sha=None, message="update via flask"):
@@ -118,7 +116,6 @@ def alunos_carregar():
     path = f"{tipo}/frequencia/alunos.txt"
     conteudo, sha_ou_erro = github_get(path)
     lista = [n.strip() for n in (conteudo or "").splitlines() if n.strip()]
-    # inclui o erro do GitHub na resposta para facilitar diagnóstico
     erro = sha_ou_erro if not conteudo else None
     return jsonify({"alunos": lista, "sha": sha_ou_erro if conteudo else None, "erro": erro})
 
