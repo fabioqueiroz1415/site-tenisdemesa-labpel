@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerenciar Alunos</title>
+</head>
+<body>
+  <p><a href="/">← Menu</a></p>
+  <h1>Gerenciar Alunos</h1>
+
+  <label for="tipo"><strong>Turma:</strong></label>
+  <select id="tipo">
+    <option value="iniciacao">Iniciação</option>
+    <option value="aprimoramento">Aprimoramento</option>
+  </select>
+
+  <br><br>
+  <strong>Alunos cadastrados:</strong><br>
+  <ul id="lista-alunos"></ul>
+
+  <input type="text" id="novo-aluno" placeholder="Nome do novo aluno">
+  <button onclick="adicionar()">Adicionar</button>
+
+  <br><br>
+  <button onclick="salvar()">Salvar alterações</button>
+  <span id="status"></span>
+
+  <script>
+    let alunos = [];
+    let shaAtual = null;
+
+    function getTipo() {
+      return document.getElementById("tipo").value;
+    }
+
+    async function carregar() {
+      document.getElementById("status").textContent = "";
+      const tipo = getTipo();
+      const resp = await fetch(`/api/alunos/carregar?tipo=${tipo}`);
+      const json = await resp.json();
+      alunos = json.alunos || [];
+      shaAtual = json.sha || null;
+      renderizar();
+    }
+
+    function renderizar() {
+      const ul = document.getElementById("lista-alunos");
+      ul.innerHTML = "";
+      alunos.forEach((nome, i) => {
+        const li = document.createElement("li");
+        li.textContent = nome + " ";
+        const btn = document.createElement("button");
+        btn.textContent = "Remover";
+        btn.onclick = () => remover(i);
+        li.appendChild(btn);
+        ul.appendChild(li);
+      });
+    }
+
+    function adicionar() {
+      const input = document.getElementById("novo-aluno");
+      const nome = input.value.trim();
+      if (!nome) return;
+      if (alunos.includes(nome)) {
+        alert("Aluno já cadastrado.");
+        return;
+      }
+      alunos.push(nome);
+      input.value = "";
+      renderizar();
+    }
+
+    function remover(i) {
+      if (!confirm(`Remover "${alunos[i]}"?`)) return;
+      alunos.splice(i, 1);
+      renderizar();
+    }
+
+    async function salvar() {
+      const tipo = getTipo();
+      document.getElementById("status").textContent = "Salvando...";
+      const resp = await fetch("/api/alunos/salvar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo, alunos, sha: shaAtual })
+      });
+      const json = await resp.json();
+      document.getElementById("status").textContent = json.ok ? "✓ Salvo!" : "✗ Erro ao salvar.";
+      if (json.ok) await carregar();
+    }
+
+    document.getElementById("tipo").addEventListener("change", carregar);
+
+    carregar();
+  </script>
+</body>
+</html>

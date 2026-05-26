@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Ensino</title>
+</head>
+<body>
+  <p><a href="/">← Menu</a></p>
+  <h1>Ensino – {{ tipo | capitalize }}</h1>
+
+  <p><a href="{{ plano_url }}" target="_blank">📄 Ver Plano de Ensino</a></p>
+
+  <h2>Aulas</h2>
+  {% if aulas %}
+    <ul>
+      {% for aula in aulas %}
+        <li><a href="{{ aula.url }}" target="_blank">{{ aula.nome }}</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nenhuma aula cadastrada ainda.</p>
+  {% endif %}
+
+  <br>
+  <p>
+    {% if tipo == 'iniciacao' %}
+      <a href="/ensino?tipo=aprimoramento">Ir para Aprimoramento</a>
+    {% else %}
+      <a href="/ensino?tipo=iniciacao">Ir para Iniciação</a>
+    {% endif %}
+  </p>
+</body>
+</html>

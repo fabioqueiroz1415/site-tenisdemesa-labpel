@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Presença</title>
+</head>
+<body>
+  <p><a href="/">← Menu</a></p>
+  <h1>Presença</h1>
+
+  <label for="tipo"><strong>Turma:</strong></label>
+  <select id="tipo">
+    <option value="iniciacao" {% if tipo == 'iniciacao' %}selected{% endif %}>Iniciação</option>
+    <option value="aprimoramento" {% if tipo == 'aprimoramento' %}selected{% endif %}>Aprimoramento</option>
+  </select>
+
+  <p><strong>Data:</strong> <span id="data-display">{{ hoje }}</span></p>
+
+  <br>
+  <label for="presentes"><strong>Alunos presentes (um por linha):</strong></label><br>
+  <textarea id="presentes" rows="12" cols="40" placeholder="Carregando..."></textarea>
+
+  <br><br>
+  <button onclick="salvar()">Enviar presença</button>
+  <span id="status"></span>
+
+  <script>
+    let shaAtual = null;
+
+    function getData() {
+      return "{{ hoje }}";
+    }
+
+    function getTipo() {
+      return document.getElementById("tipo").value;
+    }
+
+    async function carregar() {
+      document.getElementById("presentes").value = "Carregando...";
+      document.getElementById("status").textContent = "";
+      const tipo = getTipo();
+      const data = getData();
+      const resp = await fetch(`/api/presenca/carregar?tipo=${tipo}&data=${data}`);
+      const json = await resp.json();
+      document.getElementById("presentes").value = json.conteudo || "";
+      shaAtual = json.sha || null;
+    }
+
+    async function salvar() {
+      const tipo = getTipo();
+      const data = getData();
+      const conteudo = document.getElementById("presentes").value.trim() + "\n";
+      document.getElementById("status").textContent = "Salvando...";
+      const resp = await fetch("/api/presenca/salvar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo, data, conteudo, sha: shaAtual })
+      });
+      const json = await resp.json();
+      document.getElementById("status").textContent = json.ok ? "✓ Salvo!" : "✗ Erro ao salvar.";
+      if (json.ok) await carregar();
+    }
+
+    document.getElementById("tipo").addEventListener("change", carregar);
+
+    carregar();
+  </script>
+</body>
+</html>
