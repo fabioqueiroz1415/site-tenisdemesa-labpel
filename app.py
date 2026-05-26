@@ -5,7 +5,7 @@ import base64
 from datetime import datetime
 import os
 
-load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))  # carrega o .env da pasta do projeto
+load_dotenv()
 
 app = Flask(__name__)
 
