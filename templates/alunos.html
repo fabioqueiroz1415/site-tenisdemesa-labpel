@@ -2,45 +2,225 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Gerenciar Alunos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labpel - Tênis de Mesa | Gerenciar Alunos</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(30, 30, 46, 0.95);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-link {
+      display: inline-block;
+      color: #4ecdc4;
+      text-decoration: none;
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      background: rgba(78, 205, 196, 0.1);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .menu-link:hover {
+      background: rgba(78, 205, 196, 0.2);
+      transform: translateX(-5px);
+    }
+
+    h1 {
+      color: #4ecdc4;
+      margin-bottom: 30px;
+      font-size: 2em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .controls {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-right: 10px;
+      color: #4ecdc4;
+    }
+
+    select, input {
+      background: #2c2c3e;
+      color: #e0e0e0;
+      border: 1px solid #4ecdc4;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #6ee7df;
+      box-shadow: 0 0 5px rgba(78, 205, 196, 0.5);
+    }
+
+    button {
+      background: linear-gradient(135deg, #4ecdc4 0%, #44b3a8 100%);
+      color: #1a1a2e;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 5px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+    }
+
+    ul {
+      list-style: none;
+      margin: 15px 0;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      padding: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    li {
+      padding: 10px;
+      margin: 5px 0;
+      background: rgba(44, 44, 62, 0.5);
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    li:hover {
+      background: rgba(78, 205, 196, 0.1);
+      transform: translateX(5px);
+    }
+
+    li button {
+      background: #ff6b6b;
+      color: white;
+      padding: 5px 15px;
+      margin: 0;
+    }
+
+    li button:hover {
+      background: #ff5252;
+      transform: translateY(-1px);
+    }
+
+    #status {
+      margin-left: 15px;
+      font-weight: bold;
+    }
+
+    .button-group {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+  </style>
 </head>
 <body>
-  <p><a href="/">← Menu</a></p>
-  <h1>Gerenciar Alunos</h1>
+  <div class="container">
+    <a href="/" class="menu-link">← Voltar ao Menu</a>
+    <h1>👥 Gerenciar Alunos - Labpel Tênis de Mesa</h1>
 
-  <label for="tipo"><strong>Turma:</strong></label>
-  <select id="tipo">
-    <option value="iniciacao">Iniciação</option>
-    <option value="aprimoramento">Aprimoramento</option>
-  </select>
+    <div class="controls">
+      <label>Turma:</label>
+      <select id="tipo">
+        <option value="iniciacao">Iniciação</option>
+        <option value="aprimoramento">Aprimoramento</option>
+      </select>
+    </div>
 
-  <br><br>
-  <strong>Alunos cadastrados:</strong><br>
-  <ul id="lista-alunos"></ul>
+    <strong>📋 Alunos cadastrados:</strong>
+    <ul id="lista-alunos"></ul>
 
-  <input type="text" id="novo-aluno" placeholder="Nome do novo aluno">
-  <button onclick="adicionar()">Adicionar</button>
+    <div class="controls">
+      <input type="text" id="novo-aluno" placeholder="Nome do novo aluno" style="width: 70%;">
+      <button onclick="adicionar()">➕ Adicionar</button>
+    </div>
 
-  <br><br>
-  <button onclick="salvar()">Salvar alterações</button>
-  <span id="status"></span>
+    <div class="button-group">
+      <button onclick="ordenar()">🔄 Ordenar alfabeticamente</button>
+      <button onclick="salvar()">💾 Salvar alterações</button>
+      <span id="status"></span>
+    </div>
+  </div>
 
   <script>
     let alunos = [];
     let shaAtual = null;
+    let timeoutStatus = null;
 
     function getTipo() {
       return document.getElementById("tipo").value;
     }
 
+    function mostrarStatus(mensagem, isErro = false) {
+      if (timeoutStatus) clearTimeout(timeoutStatus);
+      const statusSpan = document.getElementById("status");
+      statusSpan.textContent = mensagem;
+      statusSpan.style.color = isErro ? "#ff6b6b" : "#4ecdc4";
+
+      if (!isErro) {
+        timeoutStatus = setTimeout(() => {
+          if (statusSpan.textContent === mensagem) {
+            statusSpan.textContent = "";
+          }
+          timeoutStatus = null;
+        }, 3000);
+      }
+    }
+
     async function carregar() {
-      document.getElementById("status").textContent = "";
+      mostrarStatus("Carregando...");
       const tipo = getTipo();
       const resp = await fetch(`/api/alunos/carregar?tipo=${tipo}`);
       const json = await resp.json();
       alunos = json.alunos || [];
+      ordenar(false);
       shaAtual = json.sha || null;
       renderizar();
+      mostrarStatus("");
+    }
+
+    function ordenar(mostrarMensagem = true) {
+      alunos.sort((a, b) => a.localeCompare(b, 'pt-br'));
+      renderizar();
+      if (mostrarMensagem) {
+        mostrarStatus("✓ Lista ordenada (não salvo ainda)");
+      }
     }
 
     function renderizar() {
@@ -48,7 +228,7 @@
       ul.innerHTML = "";
       alunos.forEach((nome, i) => {
         const li = document.createElement("li");
-        li.textContent = nome + " ";
+        li.innerHTML = `<span>${nome}</span>`;
         const btn = document.createElement("button");
         btn.textContent = "Remover";
         btn.onclick = () => remover(i);
@@ -62,35 +242,43 @@
       const nome = input.value.trim();
       if (!nome) return;
       if (alunos.includes(nome)) {
-        alert("Aluno já cadastrado.");
+        mostrarStatus("✗ Aluno já cadastrado!", true);
         return;
       }
       alunos.push(nome);
+      ordenar(true);
       input.value = "";
-      renderizar();
     }
 
     function remover(i) {
       if (!confirm(`Remover "${alunos[i]}"?`)) return;
       alunos.splice(i, 1);
       renderizar();
+      mostrarStatus("⚠️ Aluno removido. Não esqueça de salvar!");
     }
 
     async function salvar() {
+      ordenar(false);
+
       const tipo = getTipo();
-      document.getElementById("status").textContent = "Salvando...";
+      mostrarStatus("Salvando...");
+
       const resp = await fetch("/api/alunos/salvar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tipo, alunos, sha: shaAtual })
       });
+
       const json = await resp.json();
-      document.getElementById("status").textContent = json.ok ? "✓ Salvo!" : "✗ Erro ao salvar.";
-      if (json.ok) await carregar();
+      if (json.ok) {
+        mostrarStatus("✓ Salvo em ordem alfabética!");
+        await carregar();
+      } else {
+        mostrarStatus("✗ Erro ao salvar: " + (json.github?.message || "Erro desconhecido"), true);
+      }
     }
 
     document.getElementById("tipo").addEventListener("change", carregar);
-
     carregar();
   </script>
 </body>

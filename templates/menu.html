@@ -2,16 +2,98 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labpel - Tênis de Mesa | Menu</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(30, 30, 46, 0.9);
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #4ecdc4;
+      margin-bottom: 40px;
+      font-size: 2em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    ul {
+      list-style: none;
+      display: grid;
+      gap: 15px;
+    }
+
+    li {
+      margin: 0;
+    }
+
+    a {
+      display: block;
+      background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
+      color: #4ecdc4;
+      text-decoration: none;
+      padding: 15px 25px;
+      border-radius: 10px;
+      font-size: 1.1em;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(78, 205, 196, 0.3);
+      text-align: center;
+    }
+
+    a:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
+      border-color: #4ecdc4;
+      box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+      color: #6ee7df;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+
+      a {
+        padding: 12px 20px;
+        font-size: 1em;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Gestão de Turmas</h1>
-  <ul>
-    <li><a href="/presenca?tipo=iniciacao">Presença – Iniciação</a></li>
-    <li><a href="/presenca?tipo=aprimoramento">Presença – Aprimoramento</a></li>
-    <li><a href="/alunos">Gerenciar Alunos</a></li>
-    <li><a href="/ensino?tipo=iniciacao">Ensino – Iniciação</a></li>
-    <li><a href="/ensino?tipo=aprimoramento">Ensino – Aprimoramento</a></li>
-  </ul>
+  <div class="container">
+    <h1>🏓 Gestão de Turmas - Labpel Tênis de Mesa</h1>
+    <ul>
+      <li><a href="/presenca">✅ Presença</a></li>
+      <li><a href="/alunos">👥 Gerenciar Alunos</a></li>
+      <li><a href="/ensino">📚 Ensino</a></li>
+    </ul>
+  </div>
 </body>
 </html>

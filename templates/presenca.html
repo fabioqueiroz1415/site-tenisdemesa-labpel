@@ -2,57 +2,229 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Presença</title>
-</head>
-<body>
-  <p><a href="/">← Menu</a></p>
-  <h1>Presença</h1>
-
-  <label for="tipo"><strong>Turma:</strong></label>
-  <select id="tipo">
-    <option value="iniciacao" {% if tipo == 'iniciacao' %}selected{% endif %}>Iniciação</option>
-    <option value="aprimoramento" {% if tipo == 'aprimoramento' %}selected{% endif %}>Aprimoramento</option>
-  </select>
-
-  <p><strong>Data:</strong> {{ hoje }} (<span id="dia-semana"></span>)</p>
-
-  <br>
-  <div id="lista-alunos">Carregando...</div>
-  <div id="debug" style="color:red;font-size:0.85em"></div>
-
-  <br>
-  <button onclick="salvar()">Enviar presença</button>
-  <span id="status"></span>
-
-  <script>
-    const HOJE = "{{ hoje }}";
-
-    // Dia da semana a partir de dd-mm-aa
-    function diaSemana(ddmmaa) {
-      const [d, m, a] = ddmmaa.split("-");
-      const ano = parseInt(a) + 2000;
-      const data = new Date(ano, parseInt(m) - 1, parseInt(d));
-      return ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"][data.getDay()];
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labpel - Tênis de Mesa | Presença</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    document.getElementById("dia-semana").textContent = diaSemana(HOJE);
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+    }
 
-    function getTipo() {
-      return document.getElementById("tipo").value;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(30, 30, 46, 0.95);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-link {
+      display: inline-block;
+      color: #4ecdc4;
+      text-decoration: none;
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      background: rgba(78, 205, 196, 0.1);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .menu-link:hover {
+      background: rgba(78, 205, 196, 0.2);
+      transform: translateX(-5px);
+    }
+
+    h1 {
+      color: #4ecdc4;
+      margin-bottom: 30px;
+      font-size: 2em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .controls {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-right: 10px;
+      color: #4ecdc4;
+    }
+
+    select, input {
+      background: #2c2c3e;
+      color: #e0e0e0;
+      border: 1px solid #4ecdc4;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    select:hover, input:hover {
+      background: #3c3c5e;
+    }
+
+    button {
+      background: linear-gradient(135deg, #4ecdc4 0%, #44b3a8 100%);
+      color: #1a1a2e;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-left: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th {
+      background: #2c2c3e;
+      color: #4ecdc4;
+      padding: 12px;
+      text-align: left;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+    }
+
+    tr:hover {
+      background: rgba(78, 205, 196, 0.05);
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .info {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #4ecdc4;
+    }
+
+    #status {
+      margin-left: 15px;
+      font-weight: bold;
+    }
+
+    .debug {
+      color: #ff6b6b;
+      font-size: 0.85em;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="menu-link">← Voltar ao Menu</a>
+    <h1>🏓 Presença - Labpel Tênis de Mesa</h1>
+
+    <div class="controls">
+      <label>Turma:</label>
+      <select id="tipo">
+        <option value="iniciacao">Iniciação</option>
+        <option value="aprimoramento">Aprimoramento</option>
+      </select>
+    </div>
+
+    <div class="controls">
+      <label>Data:</label>
+      <input type="date" id="data-input" />
+    </div>
+
+    <div id="lista-alunos">Carregando...</div>
+    <div id="debug" class="debug"></div>
+
+    <div style="margin-top: 20px;">
+      <button onclick="salvar()">💾 Salvar presença</button>
+      <span id="status"></span>
+    </div>
+  </div>
+
+  <script>
+    let dataAtual = "";
+
+    function formatarDataParaArquivo(dataStr) {
+      const [ano, mes, dia] = dataStr.split("-");
+      const anoCurto = ano.slice(-2);
+      return `${dia}-${mes}-${anoCurto}`;
+    }
+
+    function formatarDataParaExibicao(dataArquivo) {
+      const [d, m, a] = dataArquivo.split("-");
+      return `${d}/${m}/20${a}`;
+    }
+
+    function getDataHoje() {
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+      const dia = String(hoje.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
+    }
+
+    function diaSemana(dataArquivo) {
+      const [d, m, a] = dataArquivo.split("-");
+      const ano = parseInt(a) + 2000;
+      const data = new Date(ano, parseInt(m) - 1, parseInt(d));
+      return ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][data.getDay()];
     }
 
     async function carregar() {
+      const tipo = document.getElementById("tipo").value;
+      const inputDate = document.getElementById("data-input").value;
+
+      if (!inputDate) {
+        alert("Selecione uma data!");
+        return;
+      }
+
+      dataAtual = formatarDataParaArquivo(inputDate);
+
       document.getElementById("lista-alunos").textContent = "Carregando...";
       document.getElementById("status").textContent = "";
       document.getElementById("debug").textContent = "";
-      const tipo = getTipo();
 
-      // Busca os três em paralelo
       const [respAlunos, respPresenca, respStats] = await Promise.all([
         fetch(`/api/alunos/carregar?tipo=${tipo}`),
-        fetch(`/api/presenca/carregar?tipo=${tipo}&data=${HOJE}`),
+        fetch(`/api/presenca/carregar?tipo=${tipo}&data=${dataAtual}`),
         fetch(`/api/presenca/estatisticas?tipo=${tipo}`)
       ]);
+
       const jsonAlunos   = await respAlunos.json();
       const jsonPresenca = await respPresenca.json();
       const jsonStats    = await respStats.json();
@@ -68,44 +240,50 @@
       div.innerHTML = "";
 
       if (!jsonAlunos.alunos || jsonAlunos.alunos.length === 0) {
-        div.textContent = "Nenhum aluno cadastrado nessa turma.";
-        document.getElementById("debug").textContent =
-          "Resposta de /api/alunos/carregar: " + JSON.stringify(jsonAlunos);
+        div.innerHTML = `<p style="color: #ffa500;">⚠️ Nenhum aluno cadastrado nessa turma.</p>
+                        <p><small>Vá em "Gerenciar Alunos" para adicionar alunos primeiro.</small></p>`;
+        document.getElementById("debug").textContent = "";
         return;
       }
 
-      // Monta tabela
-      const tabela = document.createElement("table");
-      tabela.setAttribute("border", "1");
-      tabela.setAttribute("cellpadding", "4");
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "info";
 
-      // Cabeçalho
+      const nomeTurma = tipo === "iniciacao" ? "Iniciação" : "Aprimoramento";
+      const dataExibicao = formatarDataParaExibicao(dataAtual);
+      const diaSemanaStr = diaSemana(dataAtual);
+
+      infoDiv.innerHTML = `
+        <strong>🏷️ Turma:</strong> ${nomeTurma}<br>
+        <strong>📅 Data:</strong> ${dataExibicao} (${diaSemanaStr})<br>
+        ${jsonPresenca.conteudo ? '<span style="color: #4ecdc4;">✓ Registro existente</span>' : '<span style="color: #ffa500;">⚠️ Nenhum registro para esta data</span>'}
+      `;
+      div.appendChild(infoDiv);
+
+      const tabela = document.createElement("table");
+
       const thead = tabela.createTHead();
       const tr = thead.insertRow();
-      ["Presente", "Aluno", "Presenças", "Faltas", "% Presença", "% Falta"].forEach(txt => {
+      ["✅ Presente", "👤 Aluno", "📊 Presenças", "❌ Faltas", "% Presença", "% Falta"].forEach(txt => {
         const th = document.createElement("th");
         th.textContent = txt;
         tr.appendChild(th);
       });
 
-      // Linhas
       const tbody = tabela.createTBody();
       jsonAlunos.alunos.forEach(nome => {
         const s = stats[nome] || { presencas: 0, faltas: totalAulas, pct_presenca: 0, pct_falta: 100 };
         const row = tbody.insertRow();
 
-        // Checkbox
         const tdCb = row.insertCell();
         const cb = document.createElement("input");
         cb.type = "checkbox";
         cb.value = nome;
         cb.checked = jaPresentes.has(nome);
         tdCb.appendChild(cb);
+        tdCb.style.textAlign = "center";
 
-        // Nome
         row.insertCell().textContent = nome;
-
-        // Estatísticas
         row.insertCell().textContent = s.presencas;
         row.insertCell().textContent = s.faltas;
         row.insertCell().textContent = s.pct_presenca + "%";
@@ -116,32 +294,53 @@
 
       if (totalAulas > 0) {
         const p = document.createElement("p");
-        p.textContent = `Total de aulas registradas: ${totalAulas}`;
+        p.style.marginTop = "15px";
+        p.style.fontSize = "0.9em";
+        p.style.color = "#888";
+        p.innerHTML = `<strong>📊 Total de aulas registradas:</strong> ${totalAulas}`;
         div.appendChild(p);
       }
     }
 
     async function salvar() {
-      const tipo = getTipo();
-      const checkboxes = document.querySelectorAll("#lista-alunos input[type=checkbox]:checked");
-      const presentes = Array.from(checkboxes).map(cb => cb.value);
-      const conteudo = presentes.join("\n") + (presentes.length ? "\n" : "");
+      const tipo = document.getElementById("tipo").value;
+      const checkboxes = document.querySelectorAll("#lista-alunos input[type=checkbox]");
+      const presentes = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
 
-      document.getElementById("status").textContent = "Salvando...";
+      const conteudo = presentes.join("\n") + (presentes.length ? "\n" : "");
+      const dataExibicao = formatarDataParaExibicao(dataAtual);
+
+      if (!confirm(`Salvar presença para ${dataExibicao}?\n${presentes.length} aluno(s) presente(s).`)) {
+        return;
+      }
+
+      const statusSpan = document.getElementById("status");
+      statusSpan.textContent = "Salvando...";
+      statusSpan.style.color = "#4ecdc4";
+
       const resp = await fetch("/api/presenca/salvar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo, data: HOJE, conteudo })
+        body: JSON.stringify({ tipo, data: dataAtual, conteudo })
       });
+
       const json = await resp.json();
       if (json.ok) {
-        document.getElementById("status").textContent = "✓ Salvo!";
+        statusSpan.textContent = "✓ Salvo com sucesso!";
+        statusSpan.style.color = "#4ecdc4";
+        setTimeout(() => carregar(), 1000);
       } else {
-        document.getElementById("status").textContent = "✗ Erro ao salvar: " + (json.github?.message || JSON.stringify(json.github));
+        statusSpan.textContent = "✗ Erro ao salvar: " + (json.github?.message || JSON.stringify(json.github));
+        statusSpan.style.color = "#ff6b6b";
       }
     }
 
-    document.getElementById("tipo").addEventListener("change", carregar);
+    document.getElementById("data-input").value = getDataHoje();
+    document.getElementById("tipo").addEventListener("change", () => carregar());
+    document.getElementById("data-input").addEventListener("change", () => carregar());
+
     carregar();
   </script>
 </body>

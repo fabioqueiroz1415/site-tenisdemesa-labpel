@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import requests
 import base64
 from datetime import datetime
 import os
+import re
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
@@ -78,9 +79,7 @@ def menu():
 
 @app.route("/presenca")
 def presenca():
-    hoje = datetime.now().strftime("%d-%m-%y")
-    tipo = request.args.get("tipo", "iniciacao")
-    return render_template("presenca.html", hoje=hoje, tipo=tipo)
+    return render_template("presenca.html")
 
 
 @app.route("/api/presenca/carregar")
@@ -99,7 +98,6 @@ def presenca_salvar():
     data     = dados["data"]
     conteudo = dados["conteudo"]
     path = f"{tipo}/frequencia/presencas/{data}.txt"
-    # Se o arquivo já existe, apaga antes de criar
     conteudo_atual, sha_atual = github_get(path)
     if conteudo_atual is not None:
         github_delete(path, sha_atual, message=f"apaga presença {tipo} {data} para recriar")
@@ -109,18 +107,10 @@ def presenca_salvar():
 
 @app.route("/api/presenca/estatisticas")
 def presenca_estatisticas():
-    """
-    Lê todos os arquivos de presença da turma e retorna, para cada aluno:
-    total de aulas, presenças, faltas e percentuais.
-    """
     tipo = request.args.get("tipo")
-
-    # 1. Lista todos os arquivos de presença
     arquivos = github_list_files(f"{tipo}/frequencia/presencas")
     total_aulas = len(arquivos)
-
-    # 2. Conta presenças por aluno
-    contagem = {}  # nome -> nº de presenças
+    contagem = {}
     for arq in arquivos:
         conteudo, _ = github_get(f"{tipo}/frequencia/presencas/{arq['name']}")
         if not conteudo:
@@ -129,8 +119,6 @@ def presenca_estatisticas():
             nome = nome.strip()
             if nome:
                 contagem[nome] = contagem.get(nome, 0) + 1
-
-    # 3. Monta resultado
     stats = {}
     for nome, presencas in contagem.items():
         faltas = total_aulas - presencas
@@ -140,7 +128,6 @@ def presenca_estatisticas():
             "pct_presenca": round(presencas / total_aulas * 100) if total_aulas else 0,
             "pct_falta":    round(faltas    / total_aulas * 100) if total_aulas else 0,
         }
-
     return jsonify({"total_aulas": total_aulas, "stats": stats})
 
 
@@ -177,15 +164,145 @@ def alunos_salvar():
 
 @app.route("/ensino")
 def ensino():
-    tipo = request.args.get("tipo", "iniciacao")
-    plano_url = f"https://github.com/{REPO}/blob/{BRANCH}/{tipo}/ensino/plano.md"
-    aulas = github_list(f"{tipo}/ensino/aulas")
-    aulas_urls = [
-        {"nome": a, "url": f"https://github.com/{REPO}/blob/{BRANCH}/{tipo}/ensino/aulas/{a}"}
-        for a in aulas
-    ]
-    return render_template("ensino.html", tipo=tipo, plano_url=plano_url, aulas=aulas_urls)
+    return render_template("ensino.html")
 
+
+@app.route("/api/ensino/listar_aulas")
+def ensino_listar_aulas():
+    """Lista todas as aulas de uma turma e retorna o maior número de aula"""
+    tipo = request.args.get("tipo", "iniciacao")
+    aulas = github_list(f"{tipo}/ensino/aulas")
+
+    # Extrair números das aulas (formato: AulaX-*.md)
+    numeros = []
+    for aula in aulas:
+        match = re.match(r"Aula(\d+)", aula)
+        if match:
+            numeros.append(int(match.group(1)))
+
+    maior_numero = max(numeros) if numeros else 0
+
+    return jsonify({
+        "aulas": aulas,
+        "maior_numero": maior_numero,
+        "total": len(aulas)
+    })
+
+
+@app.route("/api/ensino/carregar_aula")
+def ensino_carregar_aula():
+    """Carrega uma aula específica baseada na turma, data e número da aula"""
+    tipo = request.args.get("tipo", "iniciacao")
+    data = request.args.get("data")  # Formato: DD-MM-AA
+    numero = request.args.get("numero")
+
+    if numero:
+        # Se número for fornecido, busca pelo número
+        nome_arquivo = f"Aula{numero}-{data}.md"
+    else:
+        # Se não, busca qualquer aula com essa data
+        aulas = github_list(f"{tipo}/ensino/aulas")
+        for aula in aulas:
+            if data in aula:
+                nome_arquivo = aula
+                break
+        else:
+            return jsonify({"exists": False, "message": "Nenhuma aula encontrada para esta data"})
+
+    path = f"{tipo}/ensino/aulas/{nome_arquivo}"
+    conteudo, sha = github_get(path)
+
+    if conteudo is not None:
+        return jsonify({
+            "exists": True,
+            "conteudo": conteudo,
+            "sha": sha,
+            "nome_arquivo": nome_arquivo,
+            "url": f"https://github.com/{REPO}/blob/{BRANCH}/{tipo}/ensino/aulas/{nome_arquivo}"
+        })
+    else:
+        return jsonify({"exists": False, "message": "Aula não encontrada"})
+
+
+@app.route("/api/ensino/criar_aula", methods=["POST"])
+def ensino_criar_aula():
+    """Cria uma nova aula com o próximo número disponível"""
+    dados = request.get_json()
+    tipo = dados["tipo"]
+    data = dados["data"]
+    numero = dados["numero"]
+
+    # Template padrão para nova aula
+    template = f"""# Aula {numero} - {data}
+
+## Objetivos da Aula
+- Objetivo 1
+- Objetivo 2
+- Objetivo 3
+
+## Conteúdo Programático
+1. Tópico 1
+2. Tópico 2
+3. Tópico 3
+
+## Atividades Práticas
+- Atividade 1
+- Atividade 2
+- Atividade 3
+
+## Materiais Necessários
+- Material 1
+- Material 2
+
+## Avaliação
+- Critério 1
+- Critério 2
+
+## Observações
+Espaço para anotações adicionais
+"""
+
+    nome_arquivo = f"Aula{numero}-{data}.md"
+    path = f"{tipo}/ensino/aulas/{nome_arquivo}"
+
+    ok, resp = github_put(path, template, message=f"Criada aula {numero} para turma {tipo} - {data}")
+
+    if ok:
+        return jsonify({
+            "ok": True,
+            "nome_arquivo": nome_arquivo,
+            "url": f"https://github.com/{REPO}/blob/{BRANCH}/{tipo}/ensino/aulas/{nome_arquivo}"
+        })
+    else:
+        return jsonify({"ok": False, "error": resp})
+
+
+@app.route('/driver')
+def baixar_mysql_connector():
+    pasta = os.path.join(app.root_path, 'apagar-server')
+    arquivo = 'mysql-connector-j-9.7.0.zip'
+
+    if not os.path.exists(os.path.join(pasta, arquivo)):
+        os.abort(404)
+
+    return send_from_directory(directory=pasta, path=arquivo, as_attachment=True)
+
+@app.route('/scriptsh')
+def baixar_script_sh():
+    # Caminho onde o arquivo .sh está salvo no seu servidor
+    # (Neste exemplo, assume que ele está na raiz do projeto)
+    pasta = os.path.join(app.root_path, 'apagar-server')
+    arquivo = 'script.sh'  # Coloque o nome exato do seu arquivo .sh
+
+    if not os.path.exists(os.path.join(pasta, arquivo)):
+        os.abort(404)
+
+    return send_from_directory(
+        directory=pasta,
+        path=arquivo,
+        as_attachment=True,
+        mimetype='text/x-sh' # Informa ao navegador que é um script shell
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

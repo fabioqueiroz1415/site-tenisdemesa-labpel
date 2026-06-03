@@ -2,32 +2,439 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Ensino</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labpel - Tênis de Mesa | Ensino</title>
+  <!-- Marked.js para renderizar Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(30, 30, 46, 0.95);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-link {
+      display: inline-block;
+      color: #4ecdc4;
+      text-decoration: none;
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      background: rgba(78, 205, 196, 0.1);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .menu-link:hover {
+      background: rgba(78, 205, 196, 0.2);
+      transform: translateX(-5px);
+    }
+
+    h1 {
+      color: #4ecdc4;
+      margin-bottom: 10px;
+      font-size: 2em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .controls {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    label {
+      font-weight: bold;
+      color: #4ecdc4;
+    }
+
+    select, input {
+      background: #2c2c3e;
+      color: #e0e0e0;
+      border: 1px solid #4ecdc4;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    select:hover, input:hover {
+      background: #3c3c5e;
+    }
+
+    button {
+      background: linear-gradient(135deg, #4ecdc4 0%, #44b3a8 100%);
+      color: #1a1a2e;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+    }
+
+    .aula-content {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 30px;
+      margin-top: 20px;
+    }
+
+    .aula-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #4ecdc4;
+    }
+
+    .aula-title {
+      color: #4ecdc4;
+      font-size: 1.5em;
+    }
+
+    .edit-btn {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+      color: white;
+    }
+
+    .edit-btn:hover {
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    }
+
+    /* Estilos para o Markdown renderizado */
+    .markdown-body {
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+      color: #4ecdc4;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .markdown-body h1 {
+      border-bottom: 2px solid #4ecdc4;
+      padding-bottom: 10px;
+    }
+
+    .markdown-body h2 {
+      border-left: 3px solid #4ecdc4;
+      padding-left: 15px;
+    }
+
+    .markdown-body ul, .markdown-body ol {
+      margin-left: 25px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .markdown-body li {
+      margin: 5px 0;
+    }
+
+    .markdown-body p {
+      margin: 10px 0;
+    }
+
+    .markdown-body code {
+      background: #2c2c3e;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .markdown-body pre {
+      background: #2c2c3e;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 15px 0;
+    }
+
+    .empty-message, .error-message {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+      color: #888;
+    }
+
+    .error-message {
+      color: #ff6b6b;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #4ecdc4;
+    }
+
+    .success-message {
+      background: rgba(78, 205, 196, 0.2);
+      border: 1px solid #4ecdc4;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .control-group {
+        justify-content: space-between;
+      }
+
+      .aula-header {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <p><a href="/">← Menu</a></p>
-  <h1>Ensino – {{ tipo | capitalize }}</h1>
+  <div class="container">
+    <a href="/" class="menu-link">← Voltar ao Menu</a>
+    <h1>📚 Ensino - Labpel Tênis de Mesa</h1>
 
-  <p><a href="{{ plano_url }}" target="_blank">📄 Ver Plano de Ensino</a></p>
+    <div class="controls">
+      <div class="control-group">
+        <label>🎯 Turma:</label>
+        <select id="tipo">
+          <option value="iniciacao">🏓 Iniciação</option>
+          <option value="aprimoramento">⚡ Aprimoramento</option>
+        </select>
+      </div>
 
-  <h2>Aulas</h2>
-  {% if aulas %}
-    <ul>
-      {% for aula in aulas %}
-        <li><a href="{{ aula.url }}" target="_blank">{{ aula.nome }}</a></li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Nenhuma aula cadastrada ainda.</p>
-  {% endif %}
+      <div class="control-group">
+        <label>📅 Data:</label>
+        <input type="date" id="data-input" />
+      </div>
 
-  <br>
-  <p>
-    {% if tipo == 'iniciacao' %}
-      <a href="/ensino?tipo=aprimoramento">Ir para Aprimoramento</a>
-    {% else %}
-      <a href="/ensino?tipo=iniciacao">Ir para Iniciação</a>
-    {% endif %}
-  </p>
+      <button id="carregar-btn">🔍 Carregar Aula</button>
+    </div>
+
+    <div id="conteudo">
+      <div class="loading">📖 Selecione uma data e clique em Carregar Aula</div>
+    </div>
+  </div>
+
+  <script>
+    let aulaAtual = null;
+    let maiorNumeroAula = 0;
+
+    function formatarDataParaArquivo(dataStr) {
+      const [ano, mes, dia] = dataStr.split("-");
+      const anoCurto = ano.slice(-2);
+      return `${dia}-${mes}-${anoCurto}`;
+    }
+
+    function formatarDataParaExibicao(dataArquivo) {
+      const [d, m, a] = dataArquivo.split("-");
+      return `${d}/${m}/20${a}`;
+    }
+
+    function getDataHoje() {
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+      const dia = String(hoje.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
+    }
+
+    async function carregarMaiorNumeroAula() {
+      const tipo = document.getElementById("tipo").value;
+      try {
+        const response = await fetch(`/api/ensino/listar_aulas?tipo=${tipo}`);
+        const data = await response.json();
+        maiorNumeroAula = data.maior_numero;
+        console.log(`Maior número de aula: ${maiorNumeroAula}`);
+      } catch (error) {
+        console.error("Erro ao carregar maior número:", error);
+        maiorNumeroAula = 0;
+      }
+    }
+
+    async function carregarAula() {
+      const tipo = document.getElementById("tipo").value;
+      const inputDate = document.getElementById("data-input").value;
+
+      if (!inputDate) {
+        alert("Selecione uma data!");
+        return;
+      }
+
+      const dataArquivo = formatarDataParaArquivo(inputDate);
+      const dataExibicao = formatarDataParaExibicao(dataArquivo);
+      const conteudoDiv = document.getElementById("conteudo");
+
+      conteudoDiv.innerHTML = '<div class="loading">📖 Carregando aula...</div>';
+
+      try {
+        const response = await fetch(`/api/ensino/carregar_aula?tipo=${tipo}&data=${dataArquivo}`);
+        const data = await response.json();
+
+        if (data.exists) {
+          // Renderiza o Markdown
+          const htmlContent = marked.parse(data.conteudo);
+          aulaAtual = data;
+
+          const nomeTurma = tipo === "iniciacao" ? "Iniciação" : "Aprimoramento";
+          const icone = tipo === "iniciacao" ? "🏓" : "⚡";
+
+          conteudoDiv.innerHTML = `
+            <div class="aula-content">
+              <div class="aula-header">
+                <div class="aula-title">
+                  ${icone} ${data.nome_arquivo.replace('.md', '')} - ${nomeTurma}
+                </div>
+                <button class="edit-btn" onclick="editarAula()">✏️ Editar no GitHub</button>
+              </div>
+              <div class="markdown-body">
+                ${htmlContent}
+              </div>
+            </div>
+          `;
+        } else {
+          await carregarMaiorNumeroAula();
+          const novoNumero = maiorNumeroAula + 1;
+
+          conteudoDiv.innerHTML = `
+            <div class="empty-message">
+              <p>📭 Nenhuma aula encontrada para a data ${dataExibicao}.</p>
+              <p><small>Turma: ${tipo === "iniciacao" ? "Iniciação" : "Aprimoramento"}</small></p>
+              <button onclick="criarAula(${novoNumero})" style="margin-top: 20px;">
+                ✨ Criar Aula ${novoNumero} para ${dataExibicao}
+              </button>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error("Erro detalhado:", error);
+        conteudoDiv.innerHTML = `<div class="error-message">
+                                  <p>❌ Erro ao carregar a aula: ${error.message}</p>
+                                </div>`;
+      }
+    }
+
+    async function editarAula() {
+      if (aulaAtual && aulaAtual.url) {
+        window.open(aulaAtual.url, '_blank');
+      } else {
+        alert("URL da aula não disponível");
+      }
+    }
+
+    async function criarAula(numero) {
+      const tipo = document.getElementById("tipo").value;
+      const inputDate = document.getElementById("data-input").value;
+
+      if (!inputDate) {
+        alert("Selecione uma data!");
+        return;
+      }
+
+      const dataArquivo = formatarDataParaArquivo(inputDate);
+      const dataExibicao = formatarDataParaExibicao(dataArquivo);
+
+      if (!confirm(`Criar nova Aula ${numero} para a turma de ${tipo === "iniciacao" ? "Iniciação" : "Aprimoramento"} na data ${dataExibicao}?`)) {
+        return;
+      }
+
+      const conteudoDiv = document.getElementById("conteudo");
+      conteudoDiv.innerHTML = '<div class="loading">✨ Criando nova aula...</div>';
+
+      try {
+        const response = await fetch("/api/ensino/criar_aula", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tipo: tipo,
+            data: dataArquivo,
+            numero: numero
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          conteudoDiv.innerHTML = `
+            <div class="success-message">
+              <p>✅ Aula criada com sucesso!</p>
+              <p>📄 ${data.nome_arquivo}</p>
+              <button onclick="window.open('${data.url}', '_blank')" style="margin-top: 10px;">
+                🔗 Abrir no GitHub
+              </button>
+              <button onclick="carregarAula()" style="margin-top: 10px; margin-left: 10px;">
+                🔄 Recarregar Aula
+              </button>
+            </div>
+          `;
+        } else {
+          conteudoDiv.innerHTML = `
+            <div class="error-message">
+              <p>❌ Erro ao criar aula: ${data.error?.message || "Erro desconhecido"}</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        conteudoDiv.innerHTML = `<div class="error-message">
+                                  <p>❌ Erro ao criar aula: ${error.message}</p>
+                                </div>`;
+      }
+    }
+
+    // Event listeners
+    document.getElementById("tipo").addEventListener("change", () => {
+      carregarMaiorNumeroAula();
+    });
+
+    document.getElementById("carregar-btn").addEventListener("click", carregarAula);
+    document.getElementById("data-input").value = getDataHoje();
+
+    // Carrega o maior número de aula ao iniciar
+    carregarMaiorNumeroAula();
+  </script>
 </body>
 </html>
