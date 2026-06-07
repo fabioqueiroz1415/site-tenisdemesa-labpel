@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renomear Jogadores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+            background-color: black;
+            color: white;
+        }
+        .player-input {
+            display: flex;
+            justify-content: left;
+            margin: 5px 0;
+        }
+        .player-letra {
+            width: 2rem;
+            text-align: right;
+            padding-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <label for="numPlayers">Número de jogadores:</label>
+    <select id="numPlayers" onchange="recreatePlayers()">
+        <option value="6">6</option>
+        <option value="8">8</option>
+        <option value="10">10</option>
+    </select>
+    
+    <div id="playersContainer"></div>
+    
+    <button id="saveButton" onclick="savePlayers()">Salvar</button>
+    <button id="cleanButton" onclick="resetPlayers()">Limpar</button>
+
+    <script>
+        function recreatePlayers() {
+            const numPlayers = parseInt(document.getElementById('numPlayers').value);
+            const playersContainer = document.getElementById('playersContainer');
+            playersContainer.innerHTML = ''; // Limpa o conteúdo existente
+            
+            for (let i = 0; i < numPlayers; i++) {
+                const letter = String.fromCharCode(65 + i); // A = 65, B = 66, etc.
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-input';
+                playerDiv.innerHTML = `<span class="player-letra">${letter}: </span> <input type="text" value="jogador ${letter}">`;
+                playersContainer.appendChild(playerDiv);
+            }
+        }
+
+        function updatePlayers(numPlayers, players) {
+            const playersContainer = document.getElementById('playersContainer');
+            playersContainer.innerHTML = ''; // Limpa o conteúdo existente
+            
+            for (let i = 0; i < numPlayers; i++) {
+                const letter = String.fromCharCode(65 + i); // A = 65, B = 66, etc.
+                const playerName = players[i + 1] || `jogador ${letter}`; // Usa o nome se disponível
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-input';
+                playerDiv.innerHTML = `<span class="player-letra">${letter}: </span> <input type="text" value="${playerName}">`;
+                playersContainer.appendChild(playerDiv);
+            }
+        }
+
+        function getData() {
+            const numPlayers = parseInt(document.getElementById('numPlayers').value);
+            const players = [];
+            for (let i = 0; i < numPlayers; i++) {
+                const input = document.querySelectorAll('.player-input input')[i];
+                players.push(input.value);
+            }
+
+            const data = {
+                "quantidade-jogadores": numPlayers,
+                "jogadores": {}
+            };
+
+            for (let i = 0; i < players.length; i++) {
+                data.jogadores[(i + 1)] = players[i]; // Chave é o número (1, 2, 3, ...)
+            }
+
+            return data;
+        }
+
+        function savePlayers() {
+            const data = getData();
+            postJogadores(data);
+        }        
+
+        async function postJogadores(data) {
+            try {
+                const response = await fetch('/post-jogadores', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                alert('Operação realizada.');
+                window.location.href = '/tabela';
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+        
+        async function savePlayers() {
+            const data = getData();
+            const isPost = await postJogadores(data);
+        }
+        
+
+        function resetPlayers() {
+            const numPlayers = 6; // Número padrão de jogadores
+            document.getElementById('numPlayers').value = numPlayers;
+
+            recreatePlayers(); // Atualiza a lista de jogadores com o número padrão
+            savePlayers();
+        }
+
+        async function initialize() {
+            const data = await fetchPlayers();
+            const numPlayers = data["quantidade-jogadores"];
+            const players = data["jogadores"];
+            document.getElementById('numPlayers').value = numPlayers; // Atualiza o select
+            updatePlayers(numPlayers, players); // Atualiza a lista de jogadores
+        }
+
+        async function fetchPlayers() {
+            try {
+                const response = await fetch('/get-jogadores');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Erro ao buscar jogadores:', error);
+                return { "quantidade-jogadores": 6, "jogadores": {} }; // Valores padrão em caso de erro
+            }
+        }
+
+        // Inicializa a lista de jogadores ao carregar a página
+        window.onload = initialize;
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Árvore de Jogos</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        td {
+            border: 1px solid #ccc;
+            padding: 20px;
+            vertical-align: top;
+        }
+
+        .jogo {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <table>
+            <!-- Rodada 1 -->
+          <tr>
+            <th>Rodada 1</th>
+              <td>A × B</td>
+              <td>C × D</td>
+              <td>E × F</td>
+              <td>G × H</td>
+          </tr>
+          <!-- Rodada 2 -->
+          <tr>
+            <th>Rodada 2</th>
+              <td>Vencedor Jogo 1 × Vencedor Jogo 2</td>
+              <td>Vencedor Jogo 3 × Vencedor Jogo 4</td>
+          </tr>
+          <!-- Rodada 3 -->
+          <tr>
+            <th>Rodada 3</th>
+            <td>Vencedor Rodada 2 Jogo 1 × Vencedor Rodada 2 Jogo 2</td>
+          </tr>
+          <!-- Final -->
+          <td>
+              Vencedor Rodada 3 × Vencedor Rodada 3
+          </td>
+    </table>
+</body>
+</html>

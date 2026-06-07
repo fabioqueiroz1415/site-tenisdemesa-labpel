@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campeonatos Realizados</title>
+    <style>
+        body {
+            background-color: #000;
+            color: white;
+          }
+        h3 {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+        h3:hover {
+            color: darkblue;
+        }
+        h3:active {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Campeonatos Realizados</h1>
+    <div id="campeonatos-list"></div>
+
+    <script>
+        const campeonatos_index = {{ campeonatos_index | tojson }};
+        function loadCampeonatos() {
+            const campeonatosList = document.getElementById('campeonatos-list');
+            campeonatosList.innerHTML = '';
+
+            if (Object.keys(campeonatos_index).length > 0) {
+                for (let key in campeonatos_index) {
+                    const h3 = document.createElement('h3');
+                    h3.innerText = campeonatos_index[key];
+                    h3.onclick = async () => {
+                        await enviarDataCampeonato(campeonatos_index[key]);
+                        window.location.href = '/campeonato-salvo'
+                    }
+                    campeonatosList.appendChild(h3);
+                }
+            } else {
+                campeonatosList.innerText = 'Nenhum campeonato realizado ainda.';
+            }
+        }
+
+        // Função para enviar a data do campeonato selecionado
+        async function enviarDataCampeonato(data) {
+            await fetch('/post-data-campeonato', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ data: data })
+            })
+            .then(response => response.json())
+            .catch(error => console.error('Erro ao enviar a data do campeonato:', error));
+        }
+
+        // Carrega os campeonatos quando a página é carregada
+        window.onload = loadCampeonatos;
+    </script>
+</body>
+</html>

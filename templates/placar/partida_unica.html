@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partida Unica 1x1</title>
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #000;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid #cc6ce7;
+        }
+
+        h1 {
+            text-align: center;
+            color: #cc6ce7;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .info-partida {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 10px;
+            background-color: #0a0a0a;
+            border-radius: 10px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-weight: bold;
+            color: #cc6ce7;
+        }
+
+        .input-group input {
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #cc6ce7;
+            background-color: #0a0a0a;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff9800;
+            box-shadow: 0 0 10px rgba(255, 152, 0, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s;
+            background-color: #cc6ce7;
+            color: white;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .feedback-success {
+            background-color: #28a745;
+            color: white;
+            display: block;
+        }
+
+        .separator {
+            margin: 20px 0;
+            border-color: #444;
+        }
+
+        .link-voltar {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .link-voltar a {
+            color: #cc6ce7;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .link-voltar a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PARTIDA UNICA 1x1</h1>
+
+        <div class="info-partida">
+            Partida: unica | Rodada: unica
+        </div>
+
+        <div class="input-group">
+            <label>
+                Jogador 1:
+                <input type="text" id="nome1-input" placeholder="Digite o nome do Jogador 1">
+            </label>
+            <label>
+                Jogador 2:
+                <input type="text" id="nome2-input" placeholder="Digite o nome do Jogador 2">
+            </label>
+        </div>
+
+        <button onclick="atualizarNomes()">ATUALIZAR NOMES</button>
+
+        <div id="feedback" class="feedback"></div>
+
+        <hr class="separator">
+
+        <div class="link-voltar">
+            <a href="/links">Voltar para Links</a>
+        </div>
+    </div>
+
+    <script>
+        var partida = {{ partida | tojson }};
+
+        async function postPartida() {
+            await fetch('/post-partida', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(partida)
+            });
+        }
+
+        async function atualizarNomes() {
+            const nome1 = document.getElementById('nome1-input').value.trim();
+            const nome2 = document.getElementById('nome2-input').value.trim();
+            
+            if (nome1) partida.nome1 = nome1;
+            if (nome2) partida.nome2 = nome2;
+            
+            partida.rodada = "unica";
+            partida.partida = "unica";
+            
+            await postPartida();
+            
+            document.getElementById('nome1-input').value = '';
+            document.getElementById('nome2-input').value = '';
+            
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = 'Nomes atualizados com sucesso!';
+            feedback.classList.add('feedback-success');
+            
+            setTimeout(() => {
+                feedback.classList.remove('feedback-success');
+                feedback.textContent = '';
+            }, 2000);
+        }
+
+        async function init() {
+            partida.rodada = "unica";
+            partida.partida = "unica";
+            await postPartida();
+        }
+
+        init();
+    </script>
+</body>
+</html>

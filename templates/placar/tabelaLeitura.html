@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tabela Leitura</title>
+    <style>
+      body {
+        background-color: #000;
+        color: white;
+      }
+      .partida-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      
+      .resultado-label {
+        margin-left: 10px;
+      }
+      
+      button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+      
+      .resultado {
+        color: green;
+        font-weight: bold;
+      }
+      
+      .colocacoes {
+      }
+    </style>
+  </head>
+  <body>
+    <div id="buttons-container"></div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var resultados = {}
+        var jogadores = {}
+        var quantidade_jogadores = 0
+        var partidasTextos = []
+      
+        // Fazendo o GET dos resultados e jogadores
+        function atualizarDados() {
+          fetch('/get-tabela')
+            .then((response) => response.json())
+            .then((data) => {
+              resultados = data.resultados
+              jogadores = data.jogadores.jogadores
+              quantidade_jogadores = data.jogadores["quantidade-jogadores"]
+              const container = document.getElementById('buttons-container')
+              container.innerHTML = ''
+              if (quantidade_jogadores === 6) {
+                partidasTextos = [
+                  'A × B', // Partida 0 (1)
+                  'C × D', // Partida 1 (2)
+                  'E × F', // Partida 2 (3)
+                  'Ganhador jogo 1 × Ganhador jogo 2', // Partida 3 (4)
+                  'Ganhador jogo 3 × Ganhador jogo 1', // Partida 4 (5)
+                  'Ganhador jogo 2 × Ganhador jogo 3', // Partida 5 (6)
+                  'Perdedor jogo 1 × Perdedor jogo 2', // Partida 6 (7)
+                  'Perdedor jogo 3 × Perdedor jogo 1', // Partida 7 (8)
+                  'Perdedor jogo 3 × Perdedor jogo 2', // Partida 8 (9)
+                  'Primeiro colocado Rodada 2 Chave 1 × Segundo colocado Rodada 2 Chave 1', // Partida 9 (10)
+                  'Primeiro colocado Rodada 2 Chave 2 × Segundo colocado Rodada 2 Chave 2', // Partida 10 (11)
+                  'Terceiro colocado Rodada 2 Chave 1 × Ganhador jogo 11', // Partida 11 (12)
+                  'Perdedor jogo 10 × Ganhador jogo 12', // Partida 12 (13)
+                  'Ganhador jogo 10 × Ganhador jogo 13' // Partida 13 (14)
+                ]
+                // [rodada, jogo], [jogador1, jogador2]
+                addH2('Rodada 1')
+                addConfronto(1, 1, { type: 'direto', jogador: 1 }, { type: 'direto', jogador: 2 }, partidasTextos[0])
+                addConfronto(1, 2, { type: 'direto', jogador: 3 }, { type: 'direto', jogador: 4 }, partidasTextos[1])
+                addConfronto(1, 3, { type: 'direto', jogador: 5 }, { type: 'direto', jogador: 6 }, partidasTextos[2])
+                addH2('Rodada 2 - Chave 1')
+                addConfronto(2, 4, { type: 'resultado', resultado: 1, estado: 'ganhador' }, { type: 'resultado', resultado: 2, estado: 'ganhador' }, partidasTextos[3])
+                addConfronto(2, 5, { type: 'resultado', resultado: 3, estado: 'ganhador' }, { type: 'resultado', resultado: 1, estado: 'ganhador' }, partidasTextos[4])
+                addConfronto(2, 6, { type: 'resultado', resultado: 2, estado: 'ganhador' }, { type: 'resultado', resultado: 3, estado: 'ganhador' }, partidasTextos[5])
+                mostrarColocacoes('Colocações:', [4, 5, 6], 3)
+                addH2('Rodada 2 - Chave 2 Repescagem')
+                addConfronto(2, 7, { type: 'resultado', resultado: 1, estado: 'perdedor' }, { type: 'resultado', resultado: 2, estado: 'perdedor' }, partidasTextos[6])
+                addConfronto(2, 8, { type: 'resultado', resultado: 3, estado: 'perdedor' }, { type: 'resultado', resultado: 1, estado: 'perdedor' }, partidasTextos[7])
+                addConfronto(2, 9, { type: 'resultado', resultado: 3, estado: 'perdedor' }, { type: 'resultado', resultado: 2, estado: 'perdedor' }, partidasTextos[8])
+                mostrarColocacoes('Colocações:', [7, 8, 9], 3)
+                addH2('Rodada 3')
+                const classificadosC1 = calcularClassificados([4, 5, 6])
+                const classificadosC2 = calcularClassificados([7, 8, 9])
+                addConfronto(3, 10, { type: 'classificado', jogador: classificadosC1[0] }, { type: 'classificado', jogador: classificadosC1[1] }, partidasTextos[9])
+                addConfronto(3, 11, { type: 'classificado', jogador: classificadosC2[0] }, { type: 'classificado', jogador: classificadosC2[1] }, partidasTextos[10])
+                addH2('Rodada 4')
+                addConfronto(4, 12, { type: 'classificado', jogador: classificadosC1[2] }, { type: 'resultado', resultado: 11, estado: 'ganhador' }, partidasTextos[11])
+                addH2('Rodada 5')
+                addConfronto(5, 13, { type: 'resultado', resultado: 10, estado: 'perdedor' }, { type: 'resultado', resultado: 12, estado: 'ganhador' }, partidasTextos[12])
+                addH2('Final')
+                addConfronto('Final', 14, { type: 'resultado', resultado: 10, estado: 'ganhador' }, { type: 'resultado', resultado: 13, estado: 'ganhador' }, partidasTextos[12])
+              } else if (quantidade_jogadores === 8) {
+                partidasTextos = [
+                  'A × B', // Partida 0 (1)
+                  'C × D', // Partida 1 (2)
+                  'E × F', // Partida 2 (3)
+                  'G × H', // Partida 3 (4)
+                  'Ganhador jogo 1 × Ganhador jogo 2', // Partida 4 (5)
+                  'Ganhador jogo 3 × Ganhador jogo 4', // Partida 5 (6)
+                  'Perdedor jogo 1 × Perdedor jogo 2', // Partida 6 (7)
+                  'Perdedor jogo 3 × Perdedor jogo 4', // Partida 7 (8)
+                  'Ganhador jogo 5 × Ganhador jogo 6', // Partida 8 (9)
+                  'Perdedor jogo 5 × Perdedor jogo 6', // Partida 9 (10)
+                  'Ganhador jogo 7 × Ganhador jogo 8', // Partida 10 (11)
+                  'Ganhador jogo 10 × Ganhador jogo 11', // Partida 11 (12)
+                  'Perdedor jogo 9 × Ganhador jogo 12', // Partida 12 (13)
+                  'Ganhador jogo 9 × Ganhador jogo 13' // Partida 13 (14)
+                ]
+      
+                addH2('Rodada 1')
+                addConfronto(1, 1, { type: 'direto', jogador: 1 }, { type: 'direto', jogador: 2 }, partidasTextos[0])
+                addConfronto(1, 2, { type: 'direto', jogador: 3 }, { type: 'direto', jogador: 4 }, partidasTextos[1])
+                addConfronto(1, 3, { type: 'direto', jogador: 5 }, { type: 'direto', jogador: 6 }, partidasTextos[2])
+                addConfronto(1, 4, { type: 'direto', jogador: 7 }, { type: 'direto', jogador: 8 }, partidasTextos[3])
+                addH2('Rodada 2')
+                addConfronto(2, 5, { type: 'resultado', resultado: 1, estado: 'ganhador' }, { type: 'resultado', resultado: 2, estado: 'ganhador' }, partidasTextos[4])
+                addConfronto(2, 6, { type: 'resultado', resultado: 3, estado: 'ganhador' }, { type: 'resultado', resultado: 4, estado: 'ganhador' }, partidasTextos[5])
+                addH2('Rodada 2 - Repescagem')
+                addConfronto("2 - Repescagem", 7, { type: 'resultado', resultado: 1, estado: 'perdedor' }, { type: 'resultado', resultado: 2, estado: 'perdedor' }, partidasTextos[6])
+                addConfronto("2 - Repescagem", 8, { type: 'resultado', resultado: 3, estado: 'perdedor' }, { type: 'resultado', resultado: 4, estado: 'perdedor' }, partidasTextos[7])
+                addH2('Rodada 3')
+                addConfronto(3, 9, { type: 'resultado', resultado: 5, estado: 'ganhador' }, { type: 'resultado', resultado: 6, estado: 'ganhador' }, partidasTextos[8])
+                addConfronto(3, 10, { type: 'resultado', resultado: 5, estado: 'perdedor' }, { type: 'resultado', resultado: 6, estado: 'perdedor' }, partidasTextos[9])
+                addConfronto(3, 11, { type: 'resultado', resultado: 7, estado: 'ganhador' }, { type: 'resultado', resultado: 8, estado: 'ganhador' }, partidasTextos[10])
+                addH2('Rodada 4')
+                addConfronto(4, 12, { type: 'resultado', resultado: 10, estado: 'ganhador' }, { type: 'resultado', resultado: 11, estado: 'ganhador' }, partidasTextos[11])
+                addH2('Rodada 5')
+                addConfronto(5, 13, { type: 'resultado', resultado: 9, estado: 'perdedor' }, { type: 'resultado', resultado: 12, estado: 'ganhador' }, partidasTextos[12])
+                addH2('Final')
+                addConfronto("Final", 14, { type: 'resultado', resultado: 9, estado: 'ganhador' }, { type: 'resultado', resultado: 13, estado: 'ganhador' }, partidasTextos[13])
+              }
+      
+              //COPIAR PARA TABELA.JS DEPOIS
+              function addH2(texto) {
+                const container = document.getElementById('buttons-container')
+                const title = document.createElement('h2')
+                title.innerText = texto
+                container.appendChild(title)
+              }
+      
+              function addH3(texto) {
+                const container = document.getElementById('buttons-container')
+                const title = document.createElement('h3')
+                title.innerText = texto
+                container.appendChild(title)
+              }
+      
+              function addConfronto(rodada, jogo, jogador1Info, jogador2Info, texto) {
+                const partidaContainer = document.createElement('div')
+                partidaContainer.className = 'partida-container'
+      
+                const button = document.createElement('button')
+                button.innerText = `${jogo} - ${texto}`
+      
+                const resultadoLabel = document.createElement('span')
+                resultadoLabel.className = 'resultado-label'
+      
+                let jogador1 = null
+                let jogador2 = null
+      
+                // Tratando jogador1
+                if (jogador1Info.type === 'classificado' && jogador1Info.jogador) {
+                  jogador1 = jogador1Info.jogador.jogador
+                } else if (jogador1Info.type === 'resultado') {
+                  const resultado1 = jogador1Info.resultado
+                  const estado1 = jogador1Info.estado
+                  if (resultados[resultado1] !== undefined) {
+                    jogador1 = resultados[resultado1][estado1]
+                  }
+                } else if (jogador1Info.type === 'direto') {
+                  jogador1 = jogador1Info.jogador
+                }
+      
+                // Tratando jogador2
+                if (jogador2Info.type === 'classificado' && jogador2Info.jogador) {
+                  jogador2 = jogador2Info.jogador.jogador
+                } else if (jogador2Info.type === 'resultado') {
+                  const resultado2 = jogador2Info.resultado
+                  const estado2 = jogador2Info.estado
+                  if (resultados[resultado2] !== undefined) {
+                    jogador2 = resultados[resultado2][estado2]
+                  }
+                } else if (jogador2Info.type === 'direto') {
+                  jogador2 = jogador2Info.jogador
+                }
+      
+                // Se ambos os jogadores são válidos, habilitar o botão
+                if (jogador1 !== null && jogador2 !== null) {
+
+                  button.innerText = `${jogo} - ${jogadores[jogador1]} × ${jogadores[jogador2]}`
+                }
+      
+                // Texto à direita do botão
+                if (resultados[jogo]) {
+                  button.innerHTML = `${jogo} - <span style="color: ${jogador1 === resultados[jogo].ganhador ? "green" : "red"}; font-weight: bold;">${jogadores[jogador1]}</span> × <span style="color: ${jogador2 === resultados[jogo].ganhador ? "green" : "red"}; font-weight: bold;">${jogadores[jogador2]}</span>`;
+                  resultadoLabel.innerText = `Resultado: ${jogador1 === resultados[jogo].ganhador ? resultados[jogo]['sets-ganhador'] : resultados[jogo]['sets-perdedor']} - ${jogador1 === resultados[jogo].ganhador ? resultados[jogo]['sets-perdedor'] : resultados[jogo]['sets-ganhador']}`
+                  resultadoLabel.className = 'resultado-label resultado'
+                } else {
+                  resultadoLabel.innerText = partidasTextos[jogo - 1]
+                }
+      
+                partidaContainer.appendChild(button)
+                partidaContainer.appendChild(resultadoLabel)
+      
+                const container = document.getElementById('buttons-container')
+                container.appendChild(partidaContainer)
+              }
+      
+              function mostrarColocacoes(texto, jogos, quantidadePosicoes) {
+                //verificando se pelo menos um jogo já foi realizado
+                quantidadeResultados = 0
+                jogos.forEach((jogo) => {
+                  if (resultados[jogo]) quantidadeResultados++
+                })
+                if (quantidadeResultados === 0) return
+                addH3(texto)
+                const colocacoes = calcularClassificados(jogos, quantidadePosicoes)
+                const container = document.getElementById('buttons-container')
+      
+                // Cria um novo elemento para as colocações
+                const colocacoesDiv = document.createElement('div')
+                colocacoesDiv.className = 'colocacoes'
+                colocacoesDiv.innerHTML = ''
+      
+                colocacoes.forEach((classificado, index) => {
+                  colocacoesDiv.innerHTML += `<p>${index + 1}°: ${jogadores[classificado.jogador]} (Vitórias: ${classificado.vitorias}, Diferença de Sets: ${classificado.diferencaSets})</p>`
+                })
+      
+                container.appendChild(colocacoesDiv)
+              }
+      
+              function calcularClassificados(jogos, quantidadeJogadores) {
+                function criarListaJogadores(jogos) {
+                  let listaJogadores = []
+      
+                  jogos.forEach((jogo) => {
+                    if (resultados[jogo]) {
+                      const ganhador = resultados[jogo].ganhador
+                      const perdedor = resultados[jogo].perdedor
+      
+                      // Adiciona o ganhador e o perdedor à lista, se ainda não estiverem presentes
+                      if (!listaJogadores.includes(ganhador)) {
+                        listaJogadores.push(ganhador)
+                      }
+                      if (!listaJogadores.includes(perdedor)) {
+                        listaJogadores.push(perdedor)
+                      }
+                    }
+                  })
+      
+                  return listaJogadores
+                }
+      
+                let jogadoresStats = Array.from({ length: 14 }, () => [0, 0]) // Cria 14 arrays distintos [0, 0]
+      
+                // Função para atualizar estatísticas dos jogadores
+                function atualizarEstatisticas(resultado) {
+                  // Atualiza o número de partidas ganhas e a diferença de sets
+                  jogadoresStats[resultado['ganhador'] - 1][0] += 1 // Incrementa o número de partidas ganhas
+                  jogadoresStats[resultado['ganhador'] - 1][1] += resultado['sets-ganhador'] // Atualiza a diferença de sets
+                  jogadoresStats[resultado['ganhador'] - 1][1] -= resultado['sets-perdedor']
+                  jogadoresStats[resultado['perdedor'] - 1][1] -= resultado['sets-ganhador']
+                  jogadoresStats[resultado['perdedor'] - 1][1] += resultado['sets-perdedor'] // Atualiza a diferença de sets
+                }
+      
+                // Atualizar estatísticas com base nos resultados dos jogos
+                jogos.forEach((jogo) => {
+                  if (resultados[jogo]) {
+                    atualizarEstatisticas(resultados[jogo])
+                  }
+                })
+      
+                const listaJogadores = criarListaJogadores(jogos)
+                // Filtrar jogadores que estão na lista de jogadores válidos
+                const classificados = jogadoresStats
+                  .map((stats, index) => ({ jogador: index + 1, vitorias: stats[0], diferencaSets: stats[1] })) // Criar objetos com jogador e stats
+                  .filter((jogador) => listaJogadores.includes(jogador.jogador)) // Filtrar jogadores que não estão na lista
+                  .sort((a, b) => b.vitorias - a.vitorias || b.diferencaSets - a.diferencaSets) // Ordenar por número de partidas ganhas e diferença de sets
+                  .slice(0, quantidadeJogadores)
+      
+                return classificados
+              }
+              //REMOVER DEPOIS
+            })
+            .catch((error) => console.error('Erro ao buscar dados:', error))
+        }
+      
+        atualizarDados()
+        setInterval(atualizarDados, 1000)
+      })
+    </script>
+  </body>
+</html>

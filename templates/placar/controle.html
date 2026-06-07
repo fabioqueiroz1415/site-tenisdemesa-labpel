@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Controle Placar</title>
+    <style>
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        margin: 0;
+        background-color: #000;
+        padding-top: 3vh;
+        perspective: 1000px;
+      }
+      
+      .botao-saque:active {
+        color: #444; /* Cor específica para botões de saque ao clicar */
+      }
+      
+      .botao-ponto:active {
+        color: #444; /* Cor específica para botões de ponto ao clicar */
+      }
+      .botao-set:active {
+        color: #444; /* Cor específica para botões de ponto ao clicar */
+      }
+      td {
+        /*não selecionável*/
+        user-select: none; /* Para navegadores modernos */
+        -moz-user-select: none; /* Para Firefox */
+        -webkit-user-select: none; /* Para Safari */
+        -ms-user-select: none; /* Para IE e Edge */
+      }
+      table {
+        border-collapse: collapse;
+        background-color: #000;
+        color: white;
+        transition: all 1s;
+      }
+      
+      tr,
+      td {
+        text-align: center;
+        font-size: 1.5rem;
+        overflow: hidden;
+        white-space: nowrap;
+        transition: all 1s;
+      }
+      
+      .botao-ponto {
+        font-size: 4rem;
+        color: #cc6ce7;
+        height: 8rem;
+        border-top: 1px solid #333;
+        border-bottom: 1px solid #333;
+      }
+      .saque {
+        font-weight: bold;
+        color: white;
+      }
+      
+      .botao-set {
+        color: #cc6ce7;
+        border-top: 1px solid #333;
+        border-bottom: 1px solid #333;
+      }
+      
+      .botoes-gerais {
+        color: #cc6ce7;
+        border-top: 1px solid #333;
+        border-bottom: 1px solid #333;
+      }
+      .botoes-gerais:active {
+        color: #444; /* Cor específica para botões de ponto ao clicar */
+      }
+      .texto-meio {
+        font-size: 1.5rem;
+      }
+      .nome {
+        font-weight: bold;
+        width: 15rem;
+        font-size: 1rem;
+      }
+      .pontos {
+        font-weight: bold;
+      }
+      .sets {
+        font-weight: bold;
+      }
+      .info-partida {
+      }
+      
+      .rotacionar {
+        transform: rotateY(180deg);
+      }
+      
+      .disabled {
+        color: #444;
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      <tr class="info-partida">
+        <td id="span-partida">Partida: 0</td>
+        <td></td>
+        <td id="span-rodada">Rodada: 0</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>|</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="botoes-gerais" id="botao-iniciar-cronometro" colspan="3" onclick="setCronometro(1)">Iniciar Cronomêtro</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>|</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="botoes-gerais" id="botao-zerar-cronometro" colspan="3" onclick="setCronometro(0)">Zerar Cronomêtro</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>|</td>
+        <td></td>
+      </tr>
+      <td class="botoes-gerais" id="botao-qr-code" colspan="3" onclick="alternarQrCode()">QrCode</td>
+      <tr>
+        <td></td>
+        <td>|</td>
+        <td></td>
+      </tr>
+    </table>
+
+    <table id="table-dados">
+      <tr>
+        <td class="saque" id="saque-jogador1"></td>
+        <td id="span-vez" class="botoes-gerais" onclick="inverterSaque(true)">saque</td>
+        <td class="saque" id="saque-jogador2"></td>
+      </tr>
+      <tr>
+        <td class="nome" id="nome1"></td>
+        <td id="span-vs" class="texto-meio"></td>
+        <td class="nome" id="nome2"></td>
+      </tr>
+      <tr>
+        <td onclick="aumentarPonto(1)" class="botao-ponto" id="botao-aumentar-ponto1">+</td>
+        <td></td>
+        <td onclick="aumentarPonto(2)" class="botao-ponto" id="botao-aumentar-ponto2">+</td>
+      </tr>
+      <tr>
+        <td class="pontos" id="pontos1">0</td>
+        <td id="span-pontos" class="texto-meio">pontos</td>
+        <td class="pontos" id="pontos2">0</td>
+      </tr>
+      <tr>
+        <td onclick="diminuirPonto(1)" class="botao-ponto" id="botao-diminuir-ponto1">-</td>
+        <td></td>
+        <td onclick="diminuirPonto(2)" class="botao-ponto" id="botao-diminuir-ponto2">-</td>
+      </tr>
+      <tr>
+        <td id="botao-aumentar-set1" onclick="aumentarSet(1)" class="botao-set">+</td>
+        <td></td>
+        <td id="botao-aumentar-set2" onclick="aumentarSet(2)" class="botao-set">+</td>
+      </tr>
+      <tr>
+        <td class="sets" id="set1">0</td>
+        <td id="botao-set" class="botoes-gerais" onclick="alternarBotaoAumentarDiminuirSetDisabled()">sets</td>
+        <td class="sets" id="set2">0</td>
+      </tr>
+      <tr>
+        <td id="botao-diminuir-set1" onclick="diminuirSet(1)" class="botao-set">-</td>
+        <td></td>
+        <td id="botao-diminuir-set2" onclick="diminuirSet(2)" class="botao-set">-</td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <td>|</td>
+      </tr>
+      <tr>
+        <td id="botao-salvarSet" class="botoes-gerais" onclick="salvarSet()" id="botao-salvarSet">Salvar Set</td>
+      </tr>
+      <tr>
+        <td>|</td>
+      </tr>
+      <tr>
+        <td class="botoes-gerais" onclick="inverterLados()">Inverter Lado</td>
+      </tr>
+      <tr>
+        <td></td>
+      </tr>
+      <tr>
+        <td>|</td>
+      </tr>
+      <tr>
+        <td id="botao-salvar-partida" class="botoes-gerais" onclick="salvarPartida()">Salvar Partida</td>
+      </tr>
+      <tr>
+        <td>|</td>
+      </tr>
+    </table>
+
+    <script>
+      var partida = {{partida | tojson}}
+      var placar = {{placar | tojson}}
+      alternarBotaoAumentarDiminuirSetDisabled()
+
+// Adicione esta função para verificar e finalizar a partida quando alguém fizer 2 sets
+function verificarFimPartida() {
+    if (placar.set1 >= 2) {
+        alert(`🏆 ${partida.nome1} venceu a partida! 🏆`);
+        return true;
+    } else if (placar.set2 >= 2) {
+        alert(`🏆 ${partida.nome2} venceu a partida! 🏆`);
+        return true;
+    }
+    return false;
+}
+
+    // Modifique a função salvarSet para verificar o fim da partida
+    function salvarSet() {
+        if (document.getElementById('botao-salvarSet').classList.contains('disabled')) return;
+        if (!((placar.pontos1 + placar.pontos2) % 2)) inverterSaque();
+        zerarPontos();
+        inverterLados();
+        
+        if (verificarFimPartida()) {
+            zerarPontosESets();
+            postPlacar();
+        }
+    }
+
+    // Modifique a função aumentarPonto para verificar set point e fim de partida
+    function aumentarPonto(jogador) {
+        if (document.getElementById(`botao-aumentar-ponto${jogador}`).classList.contains('disabled')) return
+
+        if (jogador === 1) {
+            placar.pontos1++
+            if (placar.pontos1 >= 11 && placar.pontos1 >= placar.pontos2 + 2) {
+                aumentarSet(1, false)
+                if (verificarFimPartida()) {
+                    zerarPontosESets();
+                    postPlacar();
+                    return;
+                }
+            }
+        } else {
+            placar.pontos2++
+            if (placar.pontos2 >= 11 && placar.pontos2 >= placar.pontos1 + 2) {
+                aumentarSet(2, false)
+                if (verificarFimPartida()) {
+                    zerarPontosESets();
+                    postPlacar();
+                    return;
+                }
+            }
+        }
+        verificarAlternanciaSaque(1)
+        atualizarBotaoSalvarSet()
+        atualizarBotaoAumentarPonto()
+        atualizarBotaoDiminuirPonto()
+        atualizarControle()
+        postPlacar()
+    }
+
+      function setCronometro(valor) {
+        placar.cronometro = valor
+        postPlacar()
+      }
+      
+      function alternarQrCode() {
+        placar['qr-code'] = placar['qr-code'] === 0 ? 1 : 0
+        postPlacar()
+      }
+      
+      async function getPlacar() {
+        const response1 = await fetch('/get-placar', { method: 'GET' })
+        const response2 = await fetch('/get-partida', { method: 'GET' })
+        placar = await response1.json()
+        partida = await response2.json()
+        atualizarControle()
+      }
+      
+      function atualizarControle() {
+        document.getElementById('nome1').textContent = partida.nome1
+        document.getElementById('nome2').textContent = partida.nome2
+        document.getElementById('pontos1').innerText = placar.pontos1
+        document.getElementById('pontos2').innerText = placar.pontos2
+        document.getElementById('set1').innerText = placar.set1
+        document.getElementById('set2').innerText = placar.set2
+        document.getElementById('span-partida').innerText = 'Partida: ' + partida.partida
+        document.getElementById('span-rodada').innerText = 'Rodada: ' + partida.rodada
+      
+        atualizarBotaoSalvarSet()
+        atualizarBotaoAumentarPonto()
+        atualizarBotaoDiminuirPonto()
+        atualizarBotaoSalvarPartida()
+        atualizarSacador()
+      }
+
+      function alternarBotaoAumentarDiminuirSetDisabled() {
+        if (document.getElementById(`botao-set`).classList.contains('disabled')) return
+
+        document.getElementById('botao-aumentar-set1').classList.toggle('disabled')
+        document.getElementById('botao-aumentar-set2').classList.toggle('disabled')
+        document.getElementById('botao-diminuir-set1').classList.toggle('disabled')
+        document.getElementById('botao-diminuir-set2').classList.toggle('disabled')
+
+      }
+
+      function atualizarBotaoSalvarSet() {
+        if (placar.pontos1 >= 11 && placar.pontos1 >= placar.pontos2 + 2) {
+          salvarSetEnabled()
+        } else if (placar.pontos2 >= 11 && placar.pontos2 >= placar.pontos1 + 2) {
+          salvarSetEnabled()
+        } else {
+          salvarSetDisabled()
+        }
+      }
+
+      function atualizarBotaoAumentarPonto() {
+        if (placar.pontos1 >= 11 && placar.pontos1 >= placar.pontos2 + 2) {
+          aumentarPontoDisabled()
+        } else if (placar.pontos2 >= 11 && placar.pontos2 >= placar.pontos1 + 2) {
+          aumentarPontoDisabled()
+        } else {
+          aumentarPontoEnabled()
+        }
+      }
+
+      function atualizarBotaoDiminuirPonto() {
+        if (placar.pontos1 > 0) {
+          diminuirPonto1Enabled()
+        } else {
+          diminuirPonto1Disabled()
+        }
+
+        if (placar.pontos2 > 0) {
+          diminuirPonto2Enabled()
+        } else {
+          diminuirPonto2Disabled()
+        }
+      }
+
+      function atualizarBotaoSalvarPartida() {
+        if (placar.set1 - placar.set2 != 0) {
+          salvarPartidaEnabled()
+        } else {
+          salvarPartidaDisabled()
+        }
+      }
+      
+      function salvarSetEnabled() {
+        document.getElementById('botao-salvarSet').classList.remove('disabled')
+      }
+      
+      function salvarSetDisabled() {
+        document.getElementById('botao-salvarSet').classList.add('disabled')
+      }
+      
+      function aumentarPontoEnabled() {
+        document.getElementById('botao-aumentar-ponto1').classList.remove('disabled')
+        document.getElementById('botao-aumentar-ponto2').classList.remove('disabled')
+      }
+      
+      function aumentarPontoDisabled() {
+        document.getElementById('botao-aumentar-ponto1').classList.add('disabled')
+        document.getElementById('botao-aumentar-ponto2').classList.add('disabled')
+      }
+
+      function diminuirPonto1Enabled() {
+        document.getElementById('botao-diminuir-ponto1').classList.remove('disabled')
+      }
+      
+      function diminuirPonto1Disabled() {
+        document.getElementById('botao-diminuir-ponto1').classList.add('disabled')
+      }
+
+      function diminuirPonto2Enabled() {
+        document.getElementById('botao-diminuir-ponto2').classList.remove('disabled')
+      }
+      
+      function diminuirPonto2Disabled() {
+        document.getElementById('botao-diminuir-ponto2').classList.add('disabled')
+      }
+      
+      function salvarPartidaEnabled() {
+        document.getElementById('botao-salvar-partida').classList.remove('disabled')
+      }
+      
+      function salvarPartidaDisabled() {
+        document.getElementById('botao-salvar-partida').classList.add('disabled')
+      }
+      
+      function atualizarSacador() {
+        document.getElementById('saque-jogador1').innerText = placar['quem-saca'] === 1 ? '×' : ''
+        document.getElementById('saque-jogador2').innerText = placar['quem-saca'] === 2 ? '×' : ''
+      }
+      
+      function alternarSaque(jogador) {
+        placar['quem-saca'] = jogador
+        atualizarSacador()
+        postPlacar()
+      }
+      
+      function inverterSaque(verificarDisabled=false) {
+        if(verificarDisabled) if(document.getElementById("span-vez").classList.contains('disabled')) return
+        placar['quem-saca'] = placar['quem-saca'] === 1 ? 2 : 1
+        atualizarSacador()
+        postPlacar()
+      }
+      
+
+      function diminuirPonto(jogador) {
+        if (document.getElementById(`botao-diminuir-ponto${jogador}`).classList.contains('disabled')) return
+
+        if (jogador === 1 && placar.pontos1 > 0) {
+          placar.pontos1--
+      
+          if (placar.pontos1 >= 10 && placar.pontos1 >= placar.pontos2 + 1) {
+            if (placar.set1 > 0) {
+              diminuirSet(1, false)
+            }
+          }
+        } else if (jogador === 2 && placar.pontos2 > 0) {
+          placar.pontos2--
+      
+          if (placar.pontos2 >= 10 && placar.pontos2 >= placar.pontos1 + 1) {
+            if (placar.set2 > 0) {
+              diminuirSet(2, false)
+            }
+          }
+        }
+        verificarAlternanciaSaque(-1)
+        atualizarBotaoSalvarSet()
+        atualizarBotaoAumentarPonto()
+        atualizarBotaoDiminuirPonto()
+        atualizarControle()
+        postPlacar()
+      }
+      
+
+      function verificarAlternanciaSaque(valorAdicionado) {
+        const totalPontos = placar.pontos1 + placar.pontos2
+      
+        if (totalPontos < 20) {
+          // Alterna a cada 2 pontos (soma par)
+          if (valorAdicionado === 1 && totalPontos % 2 === 0) {
+            inverterSaque()
+          } else if (valorAdicionado === -1 && totalPontos % 2) {
+            inverterSaque()
+          }
+        } else {
+          inverterSaque()
+        }
+        atualizarSacador()
+      }
+      
+      function aumentarSet(jogador, verificarDisabled=true) {
+        if(verificarDisabled)
+          if (document.getElementById(`botao-aumentar-set${jogador}`).classList.contains('disabled')) return
+        placar[`set${jogador}`]++
+        atualizarBotaoSalvarSet()
+        atualizarControle()
+        postPlacar()
+      }
+      
+      function diminuirSet(jogador, verificarDisabled=true) {
+        if(verificarDisabled)
+          if (document.getElementById(`botao-diminuir-set${jogador}`).classList.contains('disabled')) return
+        if (placar[`set${jogador}`] > 0) {
+          placar[`set${jogador}`] --
+        }
+
+        atualizarBotaoSalvarSet()
+        atualizarControle()
+        postPlacar()
+      }
+      
+      function zerarPontos() {
+        placar.pontos1 = 0
+        placar.pontos2 = 0
+        atualizarBotaoSalvarPartida()
+        atualizarBotaoAumentarPonto()
+        atualizarBotaoDiminuirPonto()
+        atualizarControle()
+        postPlacar()
+      }
+      
+      function zerarPontosESets() {
+        placar.pontos1 = 0
+        placar.pontos2 = 0
+        placar.set1 = 0
+        placar.set2 = 0
+        atualizarSacador()
+        atualizarControle()
+        postPlacar()
+      }
+      
+      function inverterLados() {
+        const tabela = document.getElementById('table-dados')
+        tabela.classList.toggle('rotacionar')
+      
+        const celulas = tabela.querySelectorAll('td')
+        celulas.forEach((celula) => celula.classList.toggle('rotacionar'))
+      }
+      
+      async function postPlacar() {
+        await fetch('/post-placar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(placar)
+        })
+      }
+      
+      function salvarPartida() {
+        if (document.getElementById('botao-salvar-partida').classList.contains('disabled')) return
+        let ganhador, perdedor
+        let setsGanhador, setsPerdedor
+        let nomeGanhador, nomePerdedor
+        atualizarControle()
+      
+        // Determina o ganhador e perdedor com base nos sets
+        if (placar.set1 > placar.set2) {
+          ganhador = partida.numero1
+          perdedor = partida.numero2
+          setsGanhador = placar.set1
+          setsPerdedor = placar.set2
+          nomeGanhador = partida.nome1
+          nomePerdedor = partida.nome2
+        } else if (placar.set2 > placar.set1) {
+          ganhador = partida.numero2
+          perdedor = partida.numero1
+          setsGanhador = placar.set2
+          setsPerdedor = placar.set1
+          nomeGanhador = partida.nome2
+          nomePerdedor = partida.nome1
+        } else {
+          alert('A partida está empatada. Não é possível salvar.')
+          return
+        }
+        
+        if(!confirm("tem certeza que deseja salvar?")) return
+
+        const resultado = {}
+        resultado[partida.partida] = {
+          ganhador: ganhador,
+          perdedor: perdedor,
+          'nome-ganhador': nomeGanhador,
+          'nome-perdedor': nomePerdedor,
+          'sets-ganhador': setsGanhador,
+          'sets-perdedor': setsPerdedor
+        }
+      
+        fetch('/post-resultado', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(resultado)
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === 'success') {
+              alert('Resultado salvo.')
+              zerarPontosESets()
+              postPlacar()
+              window.location.href = '/tabela'
+            } else {
+              alert('Erro ao salvar o resultado.')
+            }
+          })
+      }
+      
+      async function inicializar() {
+        await getPlacar()
+      }
+      
+      window.onload = inicializar
+    </script>
+  </body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Links</title>
+    <style>
+        .margem-inferior {
+            height: 5rem;
+        }
+      .qr-code {
+          display: block;
+          margin: 0 auto;
+      }
+      .link {
+          display: block;
+          text-align: center;
+          font-size:2rem;
+      }
+    </style>
+</head>
+<body>
+    <h1>links</h1>
+    <table>
+      {% for key, url in links.items() %}
+      <tr>
+          <td>
+              <img class="qr-code" src="data:image/png;base64,{{ qr_codes[key] }}" alt="{{ url }}">
+          </td>
+      </tr>
+      <tr>
+        <td>
+            <a class="link" href="{{ url }}">{{ key }}</a>
+        </td>
+      </tr>
+      <tr class="margem-inferior"></tr>
+      {% endfor %}
+  </table>
+</body>
+</html>
