@@ -3,49 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Partida Unica 1x1</title>
+    <title>Partida Única 1x1</title>
     <style>
         * {
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
             background-color: #000;
             color: white;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
             min-height: 100vh;
+            perspective: 1000px;
         }
 
         .container {
             max-width: 500px;
             width: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid #cc6ce7;
+            background-color: #000;
+            padding: 20px;
         }
 
         h1 {
             text-align: center;
             color: #cc6ce7;
             margin-bottom: 30px;
-            font-size: 1.8rem;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .info-partida {
             text-align: center;
             margin-bottom: 25px;
-            padding: 10px;
+            padding: 15px;
             background-color: #0a0a0a;
             border-radius: 10px;
             color: #aaa;
-            font-size: 14px;
+            font-size: 1rem;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
         }
 
         .input-group {
@@ -61,6 +67,7 @@
             gap: 8px;
             font-weight: bold;
             color: #cc6ce7;
+            font-size: 1rem;
         }
 
         .input-group input {
@@ -79,41 +86,59 @@
             box-shadow: 0 0 10px rgba(255, 152, 0, 0.3);
         }
 
+        .input-group input::placeholder {
+            color: #555;
+        }
+
         button {
             width: 100%;
-            padding: 12px 24px;
+            padding: 15px 24px;
             border-radius: 10px;
             border: none;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 1.1rem;
             font-weight: bold;
             transition: all 0.2s;
-            background-color: #cc6ce7;
-            color: white;
+            background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
+            color: #cc6ce7;
+            border: 1px solid rgba(204, 108, 231, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
+            border-color: #cc6ce7;
+            box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
+            color: #dd88ff;
         }
 
         button:active {
             transform: scale(0.98);
+            color: #444;
         }
 
         .feedback {
             margin-top: 20px;
-            padding: 10px;
+            padding: 12px;
             border-radius: 10px;
             text-align: center;
-            font-size: 14px;
+            font-size: 0.9rem;
             display: none;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
         }
 
         .feedback-success {
-            background-color: #28a745;
-            color: white;
+            background-color: #0a0a0a;
+            color: #28a745;
             display: block;
+            border-color: #28a745;
         }
 
         .separator {
-            margin: 20px 0;
-            border-color: #444;
+            margin: 25px 0;
+            border: none;
+            border-top: 1px solid #333;
         }
 
         .link-voltar {
@@ -122,22 +147,56 @@
         }
 
         .link-voltar a {
+            display: inline-block;
+            background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
             color: #cc6ce7;
             text-decoration: none;
-            font-size: 14px;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(204, 108, 231, 0.3);
         }
 
         .link-voltar a:hover {
-            text-decoration: underline;
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
+            border-color: #cc6ce7;
+            box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
+            color: #dd88ff;
+        }
+
+        .link-voltar a:active {
+            color: #444;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            button, .link-voltar a {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>PARTIDA UNICA 1x1</h1>
+        <h1>🎯 PARTIDA ÚNICA 1x1</h1>
 
         <div class="info-partida">
-            Partida: unica | Rodada: unica
+            Partida: única | Rodada: única
         </div>
 
         <div class="input-group">
@@ -151,14 +210,14 @@
             </label>
         </div>
 
-        <button onclick="atualizarNomes()">ATUALIZAR NOMES</button>
+        <button onclick="atualizarNomes()">🔄 ATUALIZAR NOMES</button>
 
         <div id="feedback" class="feedback"></div>
 
         <hr class="separator">
 
         <div class="link-voltar">
-            <a href="/links">Voltar para Links</a>
+            <a href="/links">← Voltar para Links</a>
         </div>
     </div>
 
@@ -173,25 +232,55 @@
             });
         }
 
+        async function postPlacar() {
+            const placar = {
+                "quem-saca": 1,
+                "pontos1": 0,
+                "pontos2": 0,
+                "set1": 0,
+                "set2": 0,
+                "cronometro": 0,
+                "qr-code": 0
+            };
+            await fetch('/post-placar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(placar)
+            });
+        }
+
+        async function reiniciarPartidaUnica() {
+            await fetch('/reiniciar-partida-unica', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
         async function atualizarNomes() {
             const nome1 = document.getElementById('nome1-input').value.trim();
             const nome2 = document.getElementById('nome2-input').value.trim();
-            
-            if (nome1) partida.nome1 = nome1;
-            if (nome2) partida.nome2 = nome2;
-            
-            partida.rodada = "unica";
-            partida.partida = "unica";
-            
-            await postPartida();
-            
+
+            if (nome1 || nome2) {
+                const response = await fetch('/atualizar-nomes-partida-unica', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome1, nome2 })
+                });
+                const data = await response.json();
+                partida = data.partida;
+            }
+
+            // Reinicia o placar também
+            await reiniciarPartidaUnica();
+            await postPlacar();
+
             document.getElementById('nome1-input').value = '';
             document.getElementById('nome2-input').value = '';
-            
+
             const feedback = document.getElementById('feedback');
-            feedback.textContent = 'Nomes atualizados com sucesso!';
+            feedback.textContent = '✅ Nomes atualizados e partida reiniciada!';
             feedback.classList.add('feedback-success');
-            
+
             setTimeout(() => {
                 feedback.classList.remove('feedback-success');
                 feedback.textContent = '';
@@ -199,9 +288,11 @@
         }
 
         async function init() {
-            partida.rodada = "unica";
-            partida.partida = "unica";
+            partida.rodada = "única";
+            partida.partida = "única";
             await postPartida();
+            await reiniciarPartidaUnica();
+            await postPlacar();
         }
 
         init();

@@ -178,7 +178,12 @@ def alunos_salvar():
 # Template 3: Ensino
 @app.route("/ensino")
 def ensino():
-    return render_template("ensino.html")
+    """Carrega aula específica se tiver parâmetros, ou a aula do dia atual"""
+    tipo = request.args.get("tipo", "iniciacao")
+    data = request.args.get("data")
+    numero = request.args.get("numero")
+
+    return render_template("ensino.html", tipo_param=tipo, data_param=data, numero_param=numero)
 
 
 @app.route("/api/ensino/listar_aulas")
@@ -260,16 +265,9 @@ def ensino_criar_aula():
 - Atividade 2
 - Atividade 3
 
-## Materiais Necessários
-- Material 1
-- Material 2
+## Observações p´ós aula
 
-## Avaliação
-- Critério 1
-- Critério 2
-
-## Observações
-Espaço para anotações adicionais
+nenhuma observaç~ão.
 """
 
     nome_arquivo = f"Aula{numero}-{data}.md"
@@ -482,12 +480,9 @@ def jogadores():
 @app.route('/links')
 def links():
     html_links = {
-        "tabela": "/tabela",
-        "tabela versão 2": "/tabela_v2",
+        "configurar partida": "/partida-unica",
         "placar": "/placar",
-        "controle": "/controle",
-        "campeonatos realizados": "/campeonatos",
-        "partida única 1x1": "/partida-unica"
+        "controle": "/controle"
     }
     keys = list(html_links.keys())
     qr_codes = {}

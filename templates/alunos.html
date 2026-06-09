@@ -3,73 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Labpel - Tênis de Mesa | Gerenciar Alunos</title>
+  <title>Labpel - Gerenciar Alunos</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background-color: #000;
       color: #e0e0e0;
       min-height: 100vh;
       padding: 20px;
+      perspective: 1000px;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 1000px;
       margin: 0 auto;
-      background: rgba(30, 30, 46, 0.95);
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: #000;
+      padding: 20px;
     }
 
     .menu-link {
       display: inline-block;
-      color: #4ecdc4;
+      background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
+      color: #cc6ce7;
       text-decoration: none;
       margin-bottom: 20px;
       padding: 8px 16px;
-      background: rgba(78, 205, 196, 0.1);
       border-radius: 8px;
       transition: all 0.3s ease;
+      border: 1px solid rgba(204, 108, 231, 0.3);
     }
 
     .menu-link:hover {
-      background: rgba(78, 205, 196, 0.2);
-      transform: translateX(-5px);
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
+      border-color: #cc6ce7;
+      box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
+    }
+
+    .menu-link:active {
+      color: #444;
     }
 
     h1 {
-      color: #4ecdc4;
+      color: #cc6ce7;
       margin-bottom: 30px;
       font-size: 2em;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .controls {
-      background: rgba(0, 0, 0, 0.3);
+      background-color: #0a0a0a;
       padding: 20px;
-      border-radius: 10px;
       margin-bottom: 20px;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
     }
 
     label {
       font-weight: bold;
       margin-right: 10px;
-      color: #4ecdc4;
+      color: #cc6ce7;
     }
 
     select, input {
       background: #2c2c3e;
       color: #e0e0e0;
-      border: 1px solid #4ecdc4;
+      border: 1px solid #cc6ce7;
       padding: 8px 12px;
       border-radius: 6px;
       font-size: 1em;
@@ -77,14 +84,14 @@
 
     input:focus, select:focus {
       outline: none;
-      border-color: #6ee7df;
-      box-shadow: 0 0 5px rgba(78, 205, 196, 0.5);
+      border-color: #dd88ff;
+      box-shadow: 0 0 5px rgba(204, 108, 231, 0.5);
     }
 
     button {
-      background: linear-gradient(135deg, #4ecdc4 0%, #44b3a8 100%);
-      color: #1a1a2e;
-      border: none;
+      background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
+      color: #cc6ce7;
+      border: 1px solid rgba(204, 108, 231, 0.3);
       padding: 10px 20px;
       border-radius: 6px;
       font-size: 1em;
@@ -96,50 +103,13 @@
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
+      border-color: #cc6ce7;
+      box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
     }
 
-    ul {
-      list-style: none;
-      margin: 15px 0;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      padding: 15px;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    li {
-      padding: 10px;
-      margin: 5px 0;
-      background: rgba(44, 44, 62, 0.5);
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.3s ease;
-    }
-
-    li:hover {
-      background: rgba(78, 205, 196, 0.1);
-      transform: translateX(5px);
-    }
-
-    li button {
-      background: #ff6b6b;
-      color: white;
-      padding: 5px 15px;
-      margin: 0;
-    }
-
-    li button:hover {
-      background: #ff5252;
-      transform: translateY(-1px);
-    }
-
-    #status {
-      margin-left: 15px;
-      font-weight: bold;
+    button:active {
+      color: #444;
     }
 
     .button-group {
@@ -147,33 +117,151 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+      align-items: center;
+    }
+
+    #status {
+      margin-left: 15px;
+      font-weight: bold;
+    }
+
+    /* Estilos da tabela */
+    .alunos-table {
+      width: 100%;
+      margin: 15px 0;
+      background-color: #0a0a0a;
+      border-collapse: collapse;
+    }
+
+    .alunos-table th {
+      background: #1a1a2e;
+      color: #cc6ce7;
+      padding: 12px;
+      text-align: left;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+    }
+
+    .alunos-table td {
+      padding: 12px;
+      border-bottom: 1px solid #333;
+      vertical-align: middle;
+    }
+
+    .alunos-table tr:hover {
+      background: rgba(204, 108, 231, 0.05);
+    }
+
+    .nome-coluna {
+      text-align: left;
+    }
+
+    .frequencia-coluna {
+      text-align: center;
+    }
+
+    .acoes-coluna {
+      text-align: center;
+      width: 100px;
+    }
+
+    .aluno-nome {
+      font-weight: bold;
+    }
+
+    .grafico-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    .btn-remover {
+      background-color: #000;
+      color: #cc6ce7;
+      border: 1px solid #cc6ce7;
+      padding: 6px 12px;
+      font-size: 0.9em;
+      margin: 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-remover:hover {
+      background-color: #1a1a2e;
+      border-color: #dd88ff;
+      color: #dd88ff;
+      transform: translateY(-1px);
+    }
+
+    .btn-remover:active {
+      color: #444;
+      border-color: #444;
+    }
+
+    .adicionar-area {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .adicionar-area input {
+      flex: 1;
+    }
+
+    .total-alunos {
+      text-align: right;
+      padding: 10px 0;
+      margin: 10px 0;
+      color: #cc6ce7;
+      font-size: 0.9em;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+      background-color: #0a0a0a;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <a href="/" class="menu-link">← Voltar ao Menu</a>
-    <h1>👥 Gerenciar Alunos - Labpel Tênis de Mesa</h1>
+    <a href="/" class="menu-link"> Voltar ao Menu</a>
+    <h1>Gerenciar Alunos - Labpel Tenis de Mesa</h1>
 
     <div class="controls">
       <label>Turma:</label>
       <select id="tipo">
-        <option value="iniciacao">Iniciação</option>
+        <option value="iniciacao">Iniciacao</option>
         <option value="aprimoramento">Aprimoramento</option>
       </select>
     </div>
 
-    <strong>📋 Alunos cadastrados:</strong>
-    <ul id="lista-alunos"></ul>
+    <table class="alunos-table" id="tabela-alunos">
+      <thead>
+        <tr>
+          <th class="nome-coluna">Aluno</th>
+          <th class="frequencia-coluna">Frequencia</th>
+          <th class="acoes-coluna">Acoes</th>
+        </tr>
+      </thead>
+      <tbody id="lista-alunos">
+        <tr><td colspan="3">Carregando...</td></tr>
+      </tbody>
+    </table>
+
+    <div id="total-alunos" class="total-alunos"></div>
 
     <div class="controls">
-      <input type="text" id="novo-aluno" placeholder="Nome do novo aluno" style="width: 70%;">
-      <button onclick="adicionar()">➕ Adicionar</button>
+      <div class="adicionar-area">
+        <input type="text" id="novo-aluno" placeholder="Nome do novo aluno">
+        <button onclick="adicionar()">Adicionar</button>
+      </div>
     </div>
 
     <div class="button-group">
-      <button onclick="ordenar()">🔄 Ordenar alfabeticamente</button>
-      <button onclick="salvar()">💾 Salvar alterações</button>
+      <button onclick="ordenar()">Ordenar alfabeticamente</button>
+      <button onclick="salvar()">Salvar alteracoes</button>
       <span id="status"></span>
     </div>
   </div>
@@ -182,6 +270,9 @@
     let alunos = [];
     let shaAtual = null;
     let timeoutStatus = null;
+    let estatisticas = {};
+    let totalAulas = 0;
+    let graficos = {};
 
     function getTipo() {
       return document.getElementById("tipo").value;
@@ -191,7 +282,7 @@
       if (timeoutStatus) clearTimeout(timeoutStatus);
       const statusSpan = document.getElementById("status");
       statusSpan.textContent = mensagem;
-      statusSpan.style.color = isErro ? "#ff6b6b" : "#4ecdc4";
+      statusSpan.style.color = isErro ? "#ff6b6b" : "#cc6ce7";
 
       if (!isErro) {
         timeoutStatus = setTimeout(() => {
@@ -203,38 +294,155 @@
       }
     }
 
+    function atualizarTotalAlunos() {
+      const totalDiv = document.getElementById("total-alunos");
+      const quantidade = alunos.length;
+      totalDiv.textContent = `Total: ${quantidade} aluno${quantidade !== 1 ? 's' : ''}`;
+    }
+
+    function desenharGrafico(canvasId, porcentagemPresenca) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      const tamanho = 40;
+      canvas.width = tamanho;
+      canvas.height = tamanho;
+
+      const centroX = tamanho / 2;
+      const centroY = tamanho / 2;
+      const raio = tamanho / 2 - 2;
+
+      ctx.clearRect(0, 0, tamanho, tamanho);
+
+      ctx.beginPath();
+      ctx.arc(centroX, centroY, raio, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      if (porcentagemPresenca > 0) {
+        const anguloFinal = (porcentagemPresenca / 100) * 2 * Math.PI;
+        ctx.beginPath();
+        ctx.moveTo(centroX, centroY);
+        ctx.arc(centroX, centroY, raio, -Math.PI / 2, -Math.PI / 2 + anguloFinal);
+        ctx.closePath();
+        ctx.fillStyle = '#cc6ce7';
+        ctx.fill();
+      }
+
+      ctx.beginPath();
+      ctx.arc(centroX, centroY, raio - 8, 0, 2 * Math.PI);
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(centroX, centroY, raio - 8, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.font = 'bold 10px "Segoe UI"';
+      ctx.fillStyle = '#cc6ce7';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${porcentagemPresenca}%`, centroX, centroY);
+    }
+
+    function removerAluno(index) {
+      const nome = alunos[index];
+      if (!confirm(`Remover "${nome}"?`)) return;
+      alunos.splice(index, 1);
+      renderizarTabela();
+      atualizarTotalAlunos();
+      mostrarStatus("Aluno removido. Nao esqueca de salvar!");
+    }
+
+    function renderizarTabela() {
+      const tbody = document.getElementById("lista-alunos");
+      tbody.innerHTML = "";
+
+      if (!alunos || alunos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #888;">Nenhum aluno cadastrado</td></tr>';
+        atualizarTotalAlunos();
+        return;
+      }
+
+      alunos.forEach((nome, index) => {
+        const stats = estatisticas[nome] || { pct_presenca: 0 };
+        const porcentagem = stats.pct_presenca || 0;
+
+        const row = tbody.insertRow();
+
+        // Coluna do nome
+        const tdNome = row.insertCell(0);
+        tdNome.className = "aluno-nome";
+        tdNome.textContent = nome;
+
+        // Coluna do gráfico
+        const tdGrafico = row.insertCell(1);
+        tdGrafico.className = "grafico-container";
+        tdGrafico.style.textAlign = "center";
+
+        const canvasId = `grafico-${index}-${Date.now()}`;
+        tdGrafico.innerHTML = `<canvas id="${canvasId}" width="40" height="40"></canvas>`;
+
+        // Coluna de ações
+        const tdAcoes = row.insertCell(2);
+        tdAcoes.className = "acoes-coluna";
+        tdAcoes.style.textAlign = "center";
+
+        const btnRemover = document.createElement("button");
+        btnRemover.textContent = "Remover";
+        btnRemover.className = "btn-remover";
+        btnRemover.onclick = () => removerAluno(index);
+        tdAcoes.appendChild(btnRemover);
+
+        // Desenha o gráfico após adicionar ao DOM
+        setTimeout(() => {
+          desenharGrafico(canvasId, porcentagem);
+        }, 10);
+      });
+
+      atualizarTotalAlunos();
+    }
+
+    async function carregarEstatisticas() {
+      const tipo = getTipo();
+      try {
+        const respStats = await fetch(`/api/presenca/estatisticas?tipo=${tipo}`);
+        const jsonStats = await respStats.json();
+        estatisticas = jsonStats.stats || {};
+        totalAulas = jsonStats.total_aulas || 0;
+      } catch (error) {
+        console.error("Erro ao carregar estatisticas:", error);
+        estatisticas = {};
+        totalAulas = 0;
+      }
+    }
+
     async function carregar() {
       mostrarStatus("Carregando...");
       const tipo = getTipo();
-      const resp = await fetch(`/api/alunos/carregar?tipo=${tipo}`);
-      const json = await resp.json();
+
+      await carregarEstatisticas();
+
+      const respAlunos = await fetch(`/api/alunos/carregar?tipo=${tipo}`);
+      const json = await respAlunos.json();
       alunos = json.alunos || [];
-      ordenar(false);
       shaAtual = json.sha || null;
-      renderizar();
+
+      ordenar(false);
+      renderizarTabela();
       mostrarStatus("");
     }
 
     function ordenar(mostrarMensagem = true) {
       alunos.sort((a, b) => a.localeCompare(b, 'pt-br'));
-      renderizar();
+      renderizarTabela();
       if (mostrarMensagem) {
-        mostrarStatus("✓ Lista ordenada (não salvo ainda)");
+        mostrarStatus("Lista ordenada (nao salvo ainda)");
       }
-    }
-
-    function renderizar() {
-      const ul = document.getElementById("lista-alunos");
-      ul.innerHTML = "";
-      alunos.forEach((nome, i) => {
-        const li = document.createElement("li");
-        li.innerHTML = `<span>${nome}</span>`;
-        const btn = document.createElement("button");
-        btn.textContent = "Remover";
-        btn.onclick = () => remover(i);
-        li.appendChild(btn);
-        ul.appendChild(li);
-      });
     }
 
     function adicionar() {
@@ -242,19 +450,13 @@
       const nome = input.value.trim();
       if (!nome) return;
       if (alunos.includes(nome)) {
-        mostrarStatus("✗ Aluno já cadastrado!", true);
+        mostrarStatus("Aluno ja cadastrado!", true);
         return;
       }
       alunos.push(nome);
       ordenar(true);
       input.value = "";
-    }
-
-    function remover(i) {
-      if (!confirm(`Remover "${alunos[i]}"?`)) return;
-      alunos.splice(i, 1);
-      renderizar();
-      mostrarStatus("⚠️ Aluno removido. Não esqueça de salvar!");
+      atualizarTotalAlunos();
     }
 
     async function salvar() {
@@ -271,14 +473,17 @@
 
       const json = await resp.json();
       if (json.ok) {
-        mostrarStatus("✓ Salvo em ordem alfabética!");
+        mostrarStatus("Salvo em ordem alfabetica!");
         await carregar();
       } else {
-        mostrarStatus("✗ Erro ao salvar: " + (json.github?.message || "Erro desconhecido"), true);
+        mostrarStatus("Erro ao salvar: " + (json.github?.message || "Erro desconhecido"), true);
       }
     }
 
-    document.getElementById("tipo").addEventListener("change", carregar);
+    document.getElementById("tipo").addEventListener("change", () => {
+      carregar();
+    });
+
     carregar();
   </script>
 </body>

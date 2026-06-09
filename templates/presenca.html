@@ -3,73 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Labpel - Tênis de Mesa | Presença</title>
+  <title>Labpel - Presenca</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background-color: #000;
       color: #e0e0e0;
       min-height: 100vh;
       padding: 20px;
+      perspective: 1000px;
     }
 
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      background: rgba(30, 30, 46, 0.95);
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: #000;
+      padding: 20px;
     }
 
     .menu-link {
       display: inline-block;
-      color: #4ecdc4;
+      background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
+      color: #cc6ce7;
       text-decoration: none;
       margin-bottom: 20px;
       padding: 8px 16px;
-      background: rgba(78, 205, 196, 0.1);
       border-radius: 8px;
       transition: all 0.3s ease;
+      border: 1px solid rgba(204, 108, 231, 0.3);
     }
 
     .menu-link:hover {
-      background: rgba(78, 205, 196, 0.2);
-      transform: translateX(-5px);
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
+      border-color: #cc6ce7;
+      box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
+    }
+
+    .menu-link:active {
+      color: #444;
     }
 
     h1 {
-      color: #4ecdc4;
+      color: #cc6ce7;
       margin-bottom: 30px;
       font-size: 2em;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .controls {
-      background: rgba(0, 0, 0, 0.3);
+      background-color: #0a0a0a;
       padding: 20px;
-      border-radius: 10px;
       margin-bottom: 20px;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
     }
 
     label {
       font-weight: bold;
       margin-right: 10px;
-      color: #4ecdc4;
+      color: #cc6ce7;
     }
 
     select, input {
       background: #2c2c3e;
       color: #e0e0e0;
-      border: 1px solid #4ecdc4;
+      border: 1px solid #cc6ce7;
       padding: 8px 12px;
       border-radius: 6px;
       font-size: 1em;
@@ -81,9 +88,9 @@
     }
 
     button {
-      background: linear-gradient(135deg, #4ecdc4 0%, #44b3a8 100%);
-      color: #1a1a2e;
-      border: none;
+      background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
+      color: #cc6ce7;
+      border: 1px solid rgba(204, 108, 231, 0.3);
       padding: 10px 20px;
       border-radius: 6px;
       font-size: 1em;
@@ -95,31 +102,38 @@
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
+      border-color: #cc6ce7;
+      box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
+    }
+
+    button:active {
+      color: #444;
     }
 
     table {
       width: 100%;
       margin-top: 20px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      overflow: hidden;
+      background-color: #0a0a0a;
+      border-collapse: collapse;
     }
 
     th {
-      background: #2c2c3e;
-      color: #4ecdc4;
+      background: #1a1a2e;
+      color: #cc6ce7;
       padding: 12px;
       text-align: left;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
     }
 
     td {
       padding: 10px;
-      border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+      border-bottom: 1px solid #333;
     }
 
     tr:hover {
-      background: rgba(78, 205, 196, 0.05);
+      background: rgba(204, 108, 231, 0.05);
     }
 
     input[type="checkbox"] {
@@ -129,11 +143,12 @@
     }
 
     .info {
-      background: rgba(0, 0, 0, 0.3);
+      background-color: #0a0a0a;
       padding: 15px;
-      border-radius: 8px;
       margin-bottom: 20px;
-      border-left: 4px solid #4ecdc4;
+      border-left: 4px solid #cc6ce7;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
     }
 
     #status {
@@ -150,13 +165,13 @@
 </head>
 <body>
   <div class="container">
-    <a href="/" class="menu-link">← Voltar ao Menu</a>
-    <h1>🏓 Presença - Labpel Tênis de Mesa</h1>
+    <a href="/" class="menu-link"> Voltar ao Menu</a>
+    <h1>Presenca - Labpel Tenis de Mesa</h1>
 
     <div class="controls">
       <label>Turma:</label>
       <select id="tipo">
-        <option value="iniciacao">Iniciação</option>
+        <option value="iniciacao">Iniciacao</option>
         <option value="aprimoramento">Aprimoramento</option>
       </select>
     </div>
@@ -170,7 +185,7 @@
     <div id="debug" class="debug"></div>
 
     <div style="margin-top: 20px;">
-      <button onclick="salvar()">💾 Salvar presença</button>
+      <button onclick="salvar()">Salvar presenca</button>
       <span id="status"></span>
     </div>
   </div>
@@ -201,7 +216,7 @@
       const [d, m, a] = dataArquivo.split("-");
       const ano = parseInt(a) + 2000;
       const data = new Date(ano, parseInt(m) - 1, parseInt(d));
-      return ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][data.getDay()];
+      return ["Domingo", "Segunda", "Terca", "Quarta", "Quinta", "Sexta", "Sabado"][data.getDay()];
     }
 
     async function carregar() {
@@ -240,7 +255,7 @@
       div.innerHTML = "";
 
       if (!jsonAlunos.alunos || jsonAlunos.alunos.length === 0) {
-        div.innerHTML = `<p style="color: #ffa500;">⚠️ Nenhum aluno cadastrado nessa turma.</p>
+        div.innerHTML = `<p style="color: #ffa500;">Nenhum aluno cadastrado nessa turma.</p>
                         <p><small>Vá em "Gerenciar Alunos" para adicionar alunos primeiro.</small></p>`;
         document.getElementById("debug").textContent = "";
         return;
@@ -249,14 +264,14 @@
       const infoDiv = document.createElement("div");
       infoDiv.className = "info";
 
-      const nomeTurma = tipo === "iniciacao" ? "Iniciação" : "Aprimoramento";
+      const nomeTurma = tipo === "iniciacao" ? "Iniciacao" : "Aprimoramento";
       const dataExibicao = formatarDataParaExibicao(dataAtual);
       const diaSemanaStr = diaSemana(dataAtual);
 
       infoDiv.innerHTML = `
-        <strong>🏷️ Turma:</strong> ${nomeTurma}<br>
-        <strong>📅 Data:</strong> ${dataExibicao} (${diaSemanaStr})<br>
-        ${jsonPresenca.conteudo ? '<span style="color: #4ecdc4;">✓ Registro existente</span>' : '<span style="color: #ffa500;">⚠️ Nenhum registro para esta data</span>'}
+        <strong>Turma:</strong> ${nomeTurma}<br>
+        <strong>Data:</strong> ${dataExibicao} (${diaSemanaStr})<br>
+        ${jsonPresenca.conteudo ? '<span style="color: #cc6ce7;">Registro existente</span>' : '<span style="color: #ffa500;">Nenhum registro para esta data</span>'}
       `;
       div.appendChild(infoDiv);
 
@@ -264,7 +279,7 @@
 
       const thead = tabela.createTHead();
       const tr = thead.insertRow();
-      ["✅ Presente", "👤 Aluno", "📊 Presenças", "❌ Faltas", "% Presença", "% Falta"].forEach(txt => {
+      ["Presente", "Aluno", "Presencas", "Faltas", "% Presenca", "% Falta"].forEach(txt => {
         const th = document.createElement("th");
         th.textContent = txt;
         tr.appendChild(th);
@@ -297,7 +312,7 @@
         p.style.marginTop = "15px";
         p.style.fontSize = "0.9em";
         p.style.color = "#888";
-        p.innerHTML = `<strong>📊 Total de aulas registradas:</strong> ${totalAulas}`;
+        p.innerHTML = `<strong>Total de aulas registradas:</strong> ${totalAulas}`;
         div.appendChild(p);
       }
     }
@@ -312,13 +327,13 @@
       const conteudo = presentes.join("\n") + (presentes.length ? "\n" : "");
       const dataExibicao = formatarDataParaExibicao(dataAtual);
 
-      if (!confirm(`Salvar presença para ${dataExibicao}?\n${presentes.length} aluno(s) presente(s).`)) {
+      if (!confirm(`Salvar presenca para ${dataExibicao}?\n${presentes.length} aluno(s) presente(s).`)) {
         return;
       }
 
       const statusSpan = document.getElementById("status");
       statusSpan.textContent = "Salvando...";
-      statusSpan.style.color = "#4ecdc4";
+      statusSpan.style.color = "#cc6ce7";
 
       const resp = await fetch("/api/presenca/salvar", {
         method: "POST",
@@ -328,11 +343,11 @@
 
       const json = await resp.json();
       if (json.ok) {
-        statusSpan.textContent = "✓ Salvo com sucesso!";
-        statusSpan.style.color = "#4ecdc4";
+        statusSpan.textContent = "Salvo com sucesso!";
+        statusSpan.style.color = "#cc6ce7";
         setTimeout(() => carregar(), 1000);
       } else {
-        statusSpan.textContent = "✗ Erro ao salvar: " + (json.github?.message || JSON.stringify(json.github));
+        statusSpan.textContent = "Erro ao salvar: " + (json.github?.message || JSON.stringify(json.github));
         statusSpan.style.color = "#ff6b6b";
       }
     }
