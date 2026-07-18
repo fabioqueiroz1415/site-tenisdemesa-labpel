@@ -20,7 +20,6 @@
       color: #e0e0e0;
       min-height: 100vh;
       padding: 20px;
-      perspective: 1000px;
     }
 
     .container {
@@ -30,53 +29,6 @@
       padding: 20px;
     }
 
-    .menu-link {
-      display: inline-block;
-      background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
-      color: #cc6ce7;
-      text-decoration: none;
-      margin-bottom: 20px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(204, 108, 231, 0.3);
-    }
-
-    .menu-link:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
-      border-color: #cc6ce7;
-      box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
-    }
-
-    .menu-link:active {
-      color: #444;
-    }
-
-    .share-link {
-      display: inline-block;
-      background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
-      color: #cc6ce7;
-      text-decoration: none;
-      margin-left: 10px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(204, 108, 231, 0.3);
-      cursor: pointer;
-    }
-
-    .share-link:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
-      border-color: #cc6ce7;
-      box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
-    }
-
-    .share-link:active {
-      color: #444;
-    }
-
     h1 {
       color: #cc6ce7;
       margin-bottom: 10px;
@@ -84,188 +36,237 @@
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     }
 
-    .controls {
-      background-color: #0a0a0a;
-      padding: 20px;
-      margin: 20px 0;
+    .subtitle {
+      color: #888;
+      margin-bottom: 20px;
+      font-size: 0.9em;
+    }
+
+    /* ===== CALENDÁRIO ===== */
+    .calendar-container {
+      background: #0a0a0a;
+      border-radius: 10px;
+      padding: 8px 2px;
+      margin-top: 20px;
+      border: 1px solid #333;
+    }
+
+    .calendar-scroll {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 6px;
+    }
+
+    .calendar-scroll::-webkit-scrollbar {
+      height: 8px;
+    }
+    .calendar-scroll::-webkit-scrollbar-track {
+      background: #111;
+    }
+    .calendar-scroll::-webkit-scrollbar-thumb {
+      background: #cc6ce7;
+      border-radius: 4px;
+    }
+    .calendar-scroll::-webkit-scrollbar-thumb:hover {
+      background: #dd88ff;
+    }
+
+    .calendar-nav {
       display: flex;
-      gap: 20px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
       flex-wrap: wrap;
-      align-items: center;
-      border-top: 1px solid #333;
-      border-bottom: 1px solid #333;
-    }
-
-    .control-group {
-      display: flex;
-      align-items: center;
       gap: 10px;
+      padding: 0 4px;
     }
 
-    label {
-      font-weight: bold;
-      color: #cc6ce7;
+    .calendar-nav .nav-buttons {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
 
-    select, input {
-      background: #2c2c3e;
-      color: #e0e0e0;
-      border: 1px solid #cc6ce7;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 1em;
-      cursor: pointer;
-    }
-
-    select:hover, input:hover {
-      background: #3c3c5e;
-    }
-
-    button {
+    .calendar-nav button {
       background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
       color: #cc6ce7;
       border: 1px solid rgba(204, 108, 231, 0.3);
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 6px;
-      font-size: 1em;
-      font-weight: bold;
       cursor: pointer;
       transition: all 0.3s ease;
+      font-size: 1em;
     }
 
-    button:hover {
-      transform: translateY(-2px);
+    .calendar-nav button:hover {
       background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
       border-color: #cc6ce7;
       box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
     }
 
-    button:active {
+    .calendar-nav button:active {
       color: #444;
     }
 
-    .aula-content {
-      background-color: #0a0a0a;
-      border-radius: 10px;
-      padding: 30px;
-      margin-top: 20px;
-      border-top: 1px solid #333;
-      border-bottom: 1px solid #333;
+    .calendar-nav button.today-btn {
+      background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+      color: #fff;
+      border-color: #9b59b6;
     }
 
-    .aula-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #cc6ce7;
-      flex-wrap: wrap;
-      gap: 10px;
+    .calendar-nav button.today-btn:hover {
+      background: linear-gradient(135deg, #a96ac4 0%, #9b59b6 100%);
+      border-color: #a96ac4;
+      box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);
     }
 
-    .aula-title {
+    .calendar-nav .month-year {
       color: #cc6ce7;
-      font-size: 1.5em;
+      font-size: 1.3em;
+      font-weight: bold;
     }
 
-    .button-group {
-      display: flex;
-      gap: 10px;
-    }
-
-    .edit-btn, .share-btn {
-      background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
-      color: #cc6ce7;
-    }
-
-    .edit-btn:hover, .share-btn:hover {
-      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
-      border-color: #cc6ce7;
-    }
-
-    .markdown-body {
-      color: #e0e0e0;
-      line-height: 1.6;
-    }
-
-    .markdown-body h1, .markdown-body h2, .markdown-body h3 {
-      color: #cc6ce7;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-
-    .markdown-body h1 {
-      border-bottom: 2px solid #cc6ce7;
-      padding-bottom: 10px;
-    }
-
-    .markdown-body h2 {
-      border-left: 3px solid #cc6ce7;
-      padding-left: 15px;
-    }
-
-    .markdown-body ul, .markdown-body ol {
-      margin-left: 25px;
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
-
-    .markdown-body li {
-      margin: 5px 0;
-    }
-
-    .markdown-body p {
-      margin: 10px 0;
-    }
-
-    .markdown-body code {
-      background: #2c2c3e;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: monospace;
-    }
-
-    .markdown-body pre {
-      background: #2c2c3e;
-      padding: 15px;
-      border-radius: 8px;
-      overflow-x: auto;
-      margin: 15px 0;
-    }
-
-    .video-container {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      overflow: hidden;
-      margin: 20px 0;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    }
-
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
+    /* ===== TABELA ===== */
+    .calendar-table {
+      border-collapse: collapse;
       width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 8px;
+      /* table-layout: auto; é o padrão, não precisa declarar */
     }
 
-    .empty-message, .error-message {
-      background-color: #0a0a0a;
-      padding: 30px;
-      border-radius: 8px;
+    .calendar-table th,
+    .calendar-table td {
+      border: 1px solid #222;
       text-align: center;
-      color: #888;
-      border-top: 1px solid #333;
-      border-bottom: 1px solid #333;
+      vertical-align: top;
+      padding: 8px 4px;
+      height: 75px;
+      /* min-width removido */
     }
 
-    .error-message {
-      color: #ff6b6b;
+    .calendar-table th {
+      color: #888;
+      font-weight: bold;
+      font-size: 0.85em;
+      background: #0f0f0f;
+      height: auto;
+      padding: 6px 4px;
+      border-bottom: 2px solid #333;
+    }
+
+    .calendar-table td {
+      cursor: pointer;
+      background: transparent;
+      position: relative;
+    }
+
+    .calendar-table td:hover {
+      background: #1a1a2e;
+    }
+
+    .calendar-table td.empty {
+      cursor: default;
+      background: transparent;
+    }
+
+    .calendar-table td.empty:hover {
+      background: transparent;
+    }
+
+    .calendar-table td.today {
+      border: 2px solid #cc6ce7;
+    }
+
+    .calendar-table td .day-number {
+      font-weight: bold;
+      font-size: 0.85em;
+      color: #888;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .calendar-table td.today .day-number {
+      color: #e0e0e0;
+    }
+
+    .calendar-table td.has-aula .day-number {
+      color: #e0e0e0;
+    }
+
+    /* Aulas dentro da célula */
+    .calendar-table td .aula-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      width: 100%;
+    }
+
+    .calendar-table td .aula-item {
+      font-size: 0.7em;
+      padding: 3px 6px;
+      border-radius: 3px;
+      /* white-space: normal; permite quebra de linha */
+      white-space: normal;
+      word-break: break-word;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.3;
+      background: transparent;
+      border: none;
+      color: #e0e0e0;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    .calendar-table td .aula-item:hover {
+      transform: scale(1.05);
+      color: #fff;
+    }
+
+    .calendar-table td .aula-item .aula-separator {
+      color: #555;
+      margin: 0 2px;
+    }
+
+    .calendar-table td .aula-item.many-aulas {
+      font-size: 0.6em;
+      padding: 2px 4px;
+    }
+
+    /* Tooltip */
+    .calendar-table td .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a2e;
+      color: #e0e0e0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.75em;
+      white-space: nowrap;
+      border: 1px solid #333;
+      z-index: 10;
+      pointer-events: none;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .calendar-table td .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #1a1a2e;
+    }
+
+    .calendar-table td:hover .tooltip {
+      display: block;
     }
 
     .loading {
@@ -274,15 +275,17 @@
       color: #cc6ce7;
     }
 
-    .success-message {
+    .error-message {
       background-color: #0a0a0a;
-      border: 1px solid #cc6ce7;
-      padding: 10px;
-      border-radius: 6px;
-      margin-top: 10px;
+      padding: 30px;
+      border-radius: 8px;
       text-align: center;
+      color: #ff6b6b;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
     }
 
+    /* TOAST */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -304,90 +307,255 @@
       100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
     }
 
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: #1a1a2e;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      border: 1px solid #cc6ce7;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal h3 {
+      color: #cc6ce7;
+      margin-bottom: 8px;
+      font-size: 1.2em;
+    }
+
+    .modal .modal-subtitle {
+      color: #888;
+      font-size: 0.9em;
+      margin-bottom: 20px;
+    }
+
+    .modal .modal-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .modal .modal-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .modal .modal-option:hover {
+      background: #2a2a4e;
+      border-color: #cc6ce7;
+    }
+
+    .modal .modal-option.selected {
+      border-color: #cc6ce7;
+      background: #2a2a4e;
+    }
+
+    .modal .modal-option .option-label {
+      color: #e0e0e0;
+      font-weight: 500;
+    }
+
+    .modal .modal-option .option-status {
+      margin-left: auto;
+      font-size: 0.8em;
+      color: #888;
+    }
+
+    .modal .modal-option .option-status.has-aula {
+      color: #2ecc71;
+    }
+
+    .modal .modal-option .option-status.no-aula {
+      color: #888;
+    }
+
+    .modal .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .modal .modal-actions button {
+      padding: 10px 24px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      font-size: 0.95em;
+    }
+
+    .modal .modal-actions .btn-cancel {
+      background: #2c2c3e;
+      color: #888;
+    }
+
+    .modal .modal-actions .btn-cancel:hover {
+      background: #3c3c5e;
+    }
+
+    .modal .modal-actions .btn-confirm {
+      background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+      color: #fff;
+    }
+
+    .modal .modal-actions .btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);
+    }
+
+    .modal .modal-actions .btn-confirm:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Responsividade – sem min-width fixos */
     @media (max-width: 768px) {
-      .controls {
-        flex-direction: column;
-        align-items: stretch;
+      .calendar-table td {
+        height: 60px;
+        padding: 4px 2px;
       }
 
-      .control-group {
-        justify-content: space-between;
+      .calendar-table td .day-number {
+        font-size: 0.8em;
       }
 
-      .aula-header {
-        flex-direction: column;
-        align-items: stretch;
+      .calendar-table td .aula-item {
+        font-size: 0.6em;
+        padding: 2px 4px;
       }
 
-      .button-group {
-        justify-content: center;
+      .calendar-table td .aula-item.many-aulas {
+        font-size: 0.5em;
+        padding: 1px 3px;
+      }
+
+      .calendar-nav .month-year {
+        font-size: 1em;
+      }
+
+      .calendar-nav button {
+        padding: 6px 12px;
+        font-size: 0.85em;
+      }
+
+      .calendar-nav .nav-buttons {
+        gap: 6px;
+      }
+
+      .modal {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .calendar-table td {
+        height: 50px;
+        padding: 2px 1px;
+      }
+
+      .calendar-table td .day-number {
+        font-size: 0.7em;
+      }
+
+      .calendar-table td .aula-item {
+        font-size: 0.5em;
+        padding: 1px 3px;
+      }
+
+      .calendar-table td .aula-item.many-aulas {
+        font-size: 0.4em;
+        padding: 1px 2px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <a href="/" class="menu-link"> Voltar ao Menu</a>
-    <h1>Ensino - Labpel Tenis de Mesa</h1>
-
-    <div class="controls">
-      <div class="control-group">
-        <label>Turma:</label>
-        <select id="tipo">
-          <option value="iniciacao">Iniciacao</option>
-          <option value="aprimoramento">Aprimoramento</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label>Data:</label>
-        <input type="date" id="data-input" />
-      </div>
-
-      <button id="carregar-btn">Carregar Aula</button>
-    </div>
+    <h1>Ensino - Labpel Tênis de Mesa</h1>
+    <p class="subtitle">Clique em um dia para escolher a turma e abrir/criar a aula no GitHub.</p>
 
     <div id="conteudo">
-      <div class="loading">Selecione uma data e clique em Carregar Aula</div>
+      <div class="loading">Carregando calendário...</div>
     </div>
   </div>
 
   <script>
-    let aulaAtual = null;
-    let maiorNumeroAula = 0;
+    let todasAulas = {};
+    let turmas = [];
+    let turmasInfo = [];
+    let mesAtual = new Date().getMonth();
+    let anoAtual = new Date().getFullYear();
+    let dadosDiaSelecionado = null;
 
-    // Recebe os parâmetros do Flask
-    const tipoParam = "{{ tipo_param }}";
-    const dataParam = "{{ data_param }}";
-    const numeroParam = "{{ numero_param }}";
-
-    function formatarDataParaArquivo(dataStr) {
-      const [ano, mes, dia] = dataStr.split("-");
-      const anoCurto = ano.slice(-2);
-      return `${dia}-${mes}-${anoCurto}`;
+    function getNomeTurma(key) {
+      const map = {
+        'iniciacao': 'Iniciação',
+        'aprimoramento': 'Aprimoramento'
+      };
+      return map[key] || key;
     }
 
-    function formatarDataParaExibicao(dataArquivo) {
-      const [d, m, a] = dataArquivo.split("-");
-      return `${d}/${m}/20${a}`;
+    function getDataStr(dia, mes, ano) {
+      const mesStr = String(mes + 1).padStart(2, '0');
+      const diaStr = String(dia).padStart(2, '0');
+      return `${ano}-${mesStr}-${diaStr}`;
     }
 
-    function formatarDataParaInput(dataArquivo) {
-      const [d, m, a] = dataArquivo.split("-");
-      const ano = parseInt(a) + 2000;
-      return `${ano}-${m}-${d}`;
+    function getDataArquivoStr(dia, mes, ano) {
+      const mesStr = String(mes + 1).padStart(2, '0');
+      const diaStr = String(dia).padStart(2, '0');
+      const anoCurto = String(ano).slice(-2);
+      return `${diaStr}-${mesStr}-${anoCurto}`;
     }
 
-    function getDataHoje() {
+    function getNumeroDiasMes(mes, ano) {
+      return new Date(ano, mes + 1, 0).getDate();
+    }
+
+    function getPrimeiroDiaMes(mes, ano) {
+      return new Date(ano, mes, 1).getDay();
+    }
+
+    function ehHoje(dia, mes, ano) {
       const hoje = new Date();
-      const ano = hoje.getFullYear();
-      const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-      const dia = String(hoje.getDate()).padStart(2, '0');
-      return `${ano}-${mes}-${dia}`;
-    }
-
-    function getDataArquivoHoje() {
-      return formatarDataParaArquivo(getDataHoje());
+      return dia === hoje.getDate() && mes === hoje.getMonth() && ano === hoje.getFullYear();
     }
 
     function showToast(mensagem) {
@@ -401,273 +569,332 @@
 
       setTimeout(() => {
         toast.remove();
-      }, 2000);
+      }, 2500);
     }
 
-    function atualizarURL(tipo, dataArquivo, numero) {
-      const url = new URL(window.location.href);
-      url.searchParams.set('tipo', tipo);
-      url.searchParams.set('data', dataArquivo);
-      url.searchParams.set('numero', numero);
-      window.history.pushState({}, '', url);
-    }
+    async function carregarTodasAulas() {
+      const turmasList = ['iniciacao', 'aprimoramento'];
+      turmas = turmasList;
+      todasAulas = {};
+      turmasInfo = [];
 
-    async function copiarLinkCompartilhamento() {
-      const tipo = document.getElementById("tipo").value;
-      const dataInput = document.getElementById("data-input").value;
-
-      if (!dataInput) {
-        alert("Selecione uma data primeiro!");
-        return;
-      }
-
-      const dataArquivo = formatarDataParaArquivo(dataInput);
-
-      // Busca o número da aula atual
-      try {
-        const response = await fetch(`/api/ensino/carregar_aula?tipo=${tipo}&data=${dataArquivo}`);
-        const data = await response.json();
-
-        if (data.exists) {
-          // Extrai o número da aula do nome do arquivo
-          const match = data.nome_arquivo.match(/Aula(\d+)/);
-          if (match) {
-            const numero = match[1];
-            const linkCompartilhamento = `${window.location.origin}/ensino?tipo=${tipo}&data=${dataArquivo}&numero=${numero}`;
-
-            await navigator.clipboard.writeText(linkCompartilhamento);
-            showToast("Link copiado! Compartilhe com seus alunos.");
-          } else {
-            alert("Nao foi possivel extrair o numero da aula.");
-          }
-        } else {
-          alert("Nenhuma aula encontrada para esta data.");
-        }
-      } catch (error) {
-        console.error("Erro ao obter aula:", error);
-        alert("Erro ao gerar link de compartilhamento.");
-      }
-    }
-
-    async function carregarMaiorNumeroAula() {
-      const tipo = document.getElementById("tipo").value;
-      try {
-        const response = await fetch(`/api/ensino/listar_aulas?tipo=${tipo}`);
-        const data = await response.json();
-        maiorNumeroAula = data.maior_numero;
-        console.log(`Maior numero de aula: ${maiorNumeroAula}`);
-      } catch (error) {
-        console.error("Erro ao carregar maior numero:", error);
-        maiorNumeroAula = 0;
-      }
-    }
-
-    // Função simples que pega qualquer link e coloca em iframe
-    function processVideoInIframe(content) {
-      // Regex para encontrar !videoiniframe[qualquer texto]
-      const regex = /!videoiniframe\[([^\]]+)\]/g;
-
-      let processedContent = content;
-      let match;
-
-      while ((match = regex.exec(content)) !== null) {
-        const fullMatch = match[0];
-        const url = match[1].trim();
-
-        // Gera iframe com o link exatamente como foi fornecido
-        const iframeHtml = `<div class="video-container">
-          <iframe
-            src="${url}"
-            title="Conteúdo incorporado"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen>
-          </iframe>
-        </div>`;
-
-        // Substitui a sintaxe pelo iframe
-        processedContent = processedContent.replace(fullMatch, iframeHtml);
-      }
-
-      return processedContent;
-    }
-
-    // Função principal para renderizar Markdown com suporte a iframes
-    function renderMarkdownWithVideos(markdownContent) {
-      // Primeiro processa a sintaxe !videoiniframe
-      const contentWithIframes = processVideoInIframe(markdownContent);
-
-      // Depois converte o restante do Markdown para HTML
-      const htmlContent = marked.parse(contentWithIframes);
-
-      return htmlContent;
-    }
-
-    async function carregarAula(dataEspecifica = null, numeroEspecifico = null) {
-      const tipo = document.getElementById("tipo").value;
-      let inputDate = dataEspecifica || document.getElementById("data-input").value;
-
-      if (!inputDate) {
-        alert("Selecione uma data!");
-        return;
-      }
-
-      const dataArquivo = formatarDataParaArquivo(inputDate);
-      const dataExibicao = formatarDataParaExibicao(dataArquivo);
-      const conteudoDiv = document.getElementById("conteudo");
-
-      conteudoDiv.innerHTML = '<div class="loading">Carregando aula...</div>';
-
-      try {
-        let url = `/api/ensino/carregar_aula?tipo=${tipo}&data=${dataArquivo}`;
-        if (numeroEspecifico) {
-          url += `&numero=${numeroEspecifico}`;
-        }
-
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data.exists) {
-          // Usa a nova função para renderizar com suporte a iframes
-          const htmlContent = renderMarkdownWithVideos(data.conteudo);
-          aulaAtual = data;
-
-          const nomeTurma = tipo === "iniciacao" ? "Iniciacao" : "Aprimoramento";
-
-          // Extrai o número da aula para o link de compartilhamento e URL
-          const match = data.nome_arquivo.match(/Aula(\d+)/);
-          const numeroAula = match ? match[1] : "";
-
-          // Atualiza a URL com os parâmetros atuais
-          atualizarURL(tipo, dataArquivo, numeroAula);
-
-          conteudoDiv.innerHTML = `
-            <div class="aula-content">
-              <div class="aula-header">
-                <div class="aula-title">
-                  ${data.nome_arquivo.replace('.md', '')} - ${nomeTurma}
-                </div>
-                <div class="button-group">
-                  <button class="share-btn" onclick="copiarLinkCompartilhamento()"> Copiar link</button>
-                  <button class="edit-btn" onclick="abrirAula()">Abrir no GitHub</button>
-                </div>
-              </div>
-              <div class="markdown-body">
-                ${htmlContent}
-              </div>
-            </div>
-          `;
-        } else {
-          await carregarMaiorNumeroAula();
-          const novoNumero = maiorNumeroAula + 1;
-
-          // Remove os parâmetros da URL quando não há aula
-          const url = new URL(window.location.href);
-          url.searchParams.delete('tipo');
-          url.searchParams.delete('data');
-          url.searchParams.delete('numero');
-          window.history.pushState({}, '', url);
-
-          conteudoDiv.innerHTML = `
-            <div class="empty-message">
-              <p>Nenhuma aula encontrada para a data ${dataExibicao}.</p>
-              <p><small>Turma: ${tipo === "iniciacao" ? "Iniciacao" : "Aprimoramento"}</small></p>
-              <button onclick="criarAula(${novoNumero})" style="margin-top: 20px;">
-                Criar Aula ${novoNumero} para ${dataExibicao}
-              </button>
-            </div>
-          `;
-        }
-      } catch (error) {
-        console.error("Erro detalhado:", error);
-        conteudoDiv.innerHTML = `<div class="error-message">
-                                  <p>Erro ao carregar a aula: ${error.message}</p>
-                                </div>`;
-      }
-    }
-
-    async function abrirAula() {
-      if (aulaAtual && aulaAtual.url) {
-        window.open(aulaAtual.url, '_blank');
-      } else {
-        alert("URL da aula nao disponivel");
-      }
-    }
-
-    async function criarAula(numero) {
-      const tipo = document.getElementById("tipo").value;
-      const inputDate = document.getElementById("data-input").value;
-
-      if (!inputDate) {
-        alert("Selecione uma data!");
-        return;
-      }
-
-      const dataArquivo = formatarDataParaArquivo(inputDate);
-      const dataExibicao = formatarDataParaExibicao(dataArquivo);
-
-      if (!confirm(`Criar nova Aula ${numero} para a turma de ${tipo === "iniciacao" ? "Iniciacao" : "Aprimoramento"} na data ${dataExibicao}?`)) {
-        return;
-      }
-
-      const conteudoDiv = document.getElementById("conteudo");
-      conteudoDiv.innerHTML = '<div class="loading">Criando nova aula...</div>';
-
-      try {
-        const response = await fetch("/api/ensino/criar_aula", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            tipo: tipo,
-            data: dataArquivo,
-            numero: numero
-          })
+      for (let i = 0; i < turmasList.length; i++) {
+        const turma = turmasList[i];
+        turmasInfo.push({
+          key: turma,
+          nome: getNomeTurma(turma),
+          index: i
         });
 
+        try {
+          const response = await fetch(`/api/ensino/listar_aulas?tipo=${turma}`);
+          const data = await response.json();
+
+          if (data.aulas && data.aulas.length > 0) {
+            data.aulas.forEach(aula => {
+              if (aula.data) {
+                const partes = aula.data.split('-');
+                if (partes.length === 3) {
+                  const dia = partes[0];
+                  const mes = partes[1];
+                  const ano = parseInt(partes[2]) + 2000;
+                  const chave = `${ano}-${mes}-${dia}`;
+                  if (!todasAulas[chave]) {
+                    todasAulas[chave] = [];
+                  }
+                  todasAulas[chave].push({
+                    nome: aula.nome,
+                    numero: aula.numero,
+                    data: aula.data,
+                    turma: turma,
+                    turmaNome: getNomeTurma(turma),
+                    turmaIndex: i
+                  });
+                }
+              }
+            });
+          }
+        } catch (error) {
+          console.error(`Erro ao carregar aulas da turma ${turma}:`, error);
+        }
+      }
+
+      renderizarCalendario();
+    }
+
+    function irParaHoje() {
+      const hoje = new Date();
+      mesAtual = hoje.getMonth();
+      anoAtual = hoje.getFullYear();
+      renderizarCalendario();
+    }
+
+    function renderizarCalendario() {
+      const conteudoDiv = document.getElementById('conteudo');
+      const primeiroDia = getPrimeiroDiaMes(mesAtual, anoAtual);
+      const totalDias = getNumeroDiasMes(mesAtual, anoAtual);
+
+      const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+      let tableHtml = `<table class="calendar-table"><thead><tr>`;
+      for (let d of diasSemana) {
+        tableHtml += `<th>${d}</th>`;
+      }
+      tableHtml += `</tr></thead><tbody>`;
+
+      let diaAtual = 1;
+      let celulasNaSemana = 0;
+      let linhaIniciada = false;
+
+      // Dias vazios do início
+      for (let i = 0; i < primeiroDia; i++) {
+        if (!linhaIniciada) {
+          tableHtml += `<tr>`;
+          linhaIniciada = true;
+        }
+        tableHtml += `<td class="empty"></td>`;
+        celulasNaSemana++;
+      }
+
+      // Dias do mês
+      for (let dia = 1; dia <= totalDias; dia++) {
+        if (celulasNaSemana === 7) {
+          tableHtml += `</tr><tr>`;
+          celulasNaSemana = 0;
+        }
+
+        const dataStr = getDataStr(dia, mesAtual, anoAtual);
+        const temAula = todasAulas[dataStr] && todasAulas[dataStr].length > 0;
+        const isHoje = ehHoje(dia, mesAtual, anoAtual);
+        const dataArquivoStr = getDataArquivoStr(dia, mesAtual, anoAtual);
+
+        let classes = '';
+        if (isHoje) classes += ' today';
+        if (temAula) classes += ' has-aula';
+
+        let aulasHtml = '';
+        let tooltipText = '';
+
+        if (temAula) {
+          const aulasDoDia = todasAulas[dataStr];
+          aulasDoDia.sort((a, b) => a.turmaIndex - b.turmaIndex);
+
+          const detalhes = aulasDoDia.map(a =>
+            `Aula ${a.numero} | ${a.turmaNome}`
+          ).join(', ');
+          tooltipText = detalhes;
+
+          const manyClasses = aulasDoDia.length > 2 ? ' many-aulas' : '';
+
+          aulasDoDia.forEach(aula => {
+            const texto = `${aula.turmaNome} | Aula ${aula.numero}`;
+            aulasHtml += `
+              <div class="aula-item${manyClasses}">
+                ${texto}
+              </div>
+            `;
+          });
+        }
+
+        const onclickAttr = `onclick="abrirModal('${dataStr}', '${dataArquivoStr}')"`;
+
+        tableHtml += `
+          <td class="${classes}" ${onclickAttr}>
+            <span class="day-number">${dia}</span>
+            ${temAula ? `<div class="aula-info">${aulasHtml}</div>` : ''}
+            ${temAula ? `<div class="tooltip">${tooltipText}</div>` : ''}
+          </td>
+        `;
+        celulasNaSemana++;
+      }
+
+      // Completa a última linha com células vazias
+      while (celulasNaSemana < 7 && celulasNaSemana > 0) {
+        tableHtml += `<td class="empty"></td>`;
+        celulasNaSemana++;
+      }
+
+      tableHtml += `</tr></tbody></table>`;
+
+      const html = `
+        <div class="calendar-container">
+          <div class="calendar-nav">
+            <div class="nav-buttons">
+              <button onclick="mudarMes(-1)">‹</button>
+              <button onclick="mudarMes(1)">›</button>
+              <button class="today-btn" onclick="irParaHoje()">📅 Hoje</button>
+            </div>
+            <span class="month-year">${meses[mesAtual]} ${anoAtual}</span>
+          </div>
+          <div class="calendar-scroll">
+            ${tableHtml}
+          </div>
+          <div style="margin-top:16px; padding-top:16px; border-top:1px solid #333; color:#888; font-size:0.85em; text-align:center;">
+            Clique em um dia para abrir/criar aula
+          </div>
+        </div>
+      `;
+
+      conteudoDiv.innerHTML = html;
+    }
+
+    function mudarMes(delta) {
+      mesAtual += delta;
+      if (mesAtual < 0) {
+        mesAtual = 11;
+        anoAtual--;
+      } else if (mesAtual > 11) {
+        mesAtual = 0;
+        anoAtual++;
+      }
+      renderizarCalendario();
+    }
+
+    // ===== MODAL =====
+    function abrirModal(dataStr, dataArquivoStr) {
+      dadosDiaSelecionado = { dataStr, dataArquivoStr };
+
+      const turmasComAula = [];
+      if (todasAulas[dataStr]) {
+        todasAulas[dataStr].forEach(aula => {
+          turmasComAula.push(aula.turma);
+        });
+      }
+
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.id = 'modal-overlay';
+
+      let optionsHtml = '';
+      turmasInfo.forEach(t => {
+        const temAula = turmasComAula.includes(t.key);
+        const statusText = temAula ? '✅ Tem aula' : '📝 Criar aula';
+
+        optionsHtml += `
+          <div class="modal-option" data-turma="${t.key}" onclick="selecionarOpcao('${t.key}')">
+            <span class="option-label">${t.nome}</span>
+            <span class="option-status ${temAula ? 'has-aula' : 'no-aula'}">${statusText}</span>
+          </div>
+        `;
+      });
+
+      overlay.innerHTML = `
+        <div class="modal">
+          <h3>📅 ${formatarDataParaExibicao(dataArquivoStr)}</h3>
+          <div class="modal-subtitle">Selecione a turma para abrir ou criar a aula</div>
+          <div class="modal-options" id="modal-options">
+            ${optionsHtml}
+          </div>
+          <div class="modal-actions">
+            <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+            <button class="btn-confirm" id="btn-confirm" disabled onclick="confirmarSelecao()">Abrir</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) fecharModal();
+      });
+
+      document.addEventListener('keydown', function handler(e) {
+        if (e.key === 'Escape') {
+          fecharModal();
+          document.removeEventListener('keydown', handler);
+        }
+      });
+
+      let selectedTurma = null;
+
+      window.selecionarOpcao = function(turmaKey) {
+        selectedTurma = turmaKey;
+        document.querySelectorAll('.modal-option').forEach(el => el.classList.remove('selected'));
+        const optionEl = document.querySelector(`.modal-option[data-turma="${turmaKey}"]`);
+        if (optionEl) optionEl.classList.add('selected');
+        document.getElementById('btn-confirm').disabled = false;
+      };
+
+      window.fecharModal = function() {
+        const overlayEl = document.getElementById('modal-overlay');
+        if (overlayEl) overlayEl.remove();
+      };
+
+      window.confirmarSelecao = function() {
+        if (selectedTurma && dadosDiaSelecionado) {
+          const { dataStr, dataArquivoStr } = dadosDiaSelecionado;
+          fecharModal();
+          processarAula(dataStr, dataArquivoStr, selectedTurma);
+        } else if (!dadosDiaSelecionado) {
+          showToast('Erro: dados do dia não encontrados');
+          fecharModal();
+        }
+      };
+    }
+
+    function formatarDataParaExibicao(dataArquivo) {
+      if (!dataArquivo) return "Data não disponível";
+      const partes = dataArquivo.split("-");
+      if (partes.length !== 3) return dataArquivo;
+      const [d, m, a] = partes;
+      return `${d}/${m}/20${a}`;
+    }
+
+    async function processarAula(dataStr, dataArquivoStr, turma) {
+      const conteudoDiv = document.getElementById('conteudo');
+      conteudoDiv.innerHTML = '<div class="loading">Processando...</div>';
+
+      try {
+        const response = await fetch(`/api/ensino/carregar_aula?tipo=${turma}&data=${dataArquivoStr}`);
         const data = await response.json();
 
-        if (data.ok) {
-          // Após criar, carrega a aula automaticamente
-          await carregarAula(inputDate, numero);
+        if (data.exists) {
+          if (data.url) {
+            window.open(data.url, '_blank');
+            showToast(`Abrindo aula da turma ${getNomeTurma(turma)}`);
+          } else {
+            showToast('URL da aula não disponível');
+          }
         } else {
-          conteudoDiv.innerHTML = `
-            <div class="error-message">
-              <p>Erro ao criar aula: ${data.error?.message || "Erro desconhecido"}</p>
-            </div>
-          `;
+          const listResponse = await fetch(`/api/ensino/listar_aulas?tipo=${turma}`);
+          const listData = await listResponse.json();
+          const proximoNumero = (listData.maior_numero || 0) + 1;
+
+          const createResponse = await fetch('/api/ensino/criar_aula', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tipo: turma,
+              data: dataArquivoStr,
+              numero: proximoNumero
+            })
+          });
+
+          const createData = await createResponse.json();
+
+          if (createData.ok) {
+            showToast(`Aula ${proximoNumero} (${getNomeTurma(turma)}) criada! Redirecionando...`);
+            if (createData.url) {
+              window.open(createData.url, '_blank');
+            }
+          } else {
+            showToast('Erro ao criar aula: ' + (createData.error?.message || 'Erro desconhecido'));
+          }
         }
+
+        await carregarTodasAulas();
       } catch (error) {
-        conteudoDiv.innerHTML = `<div class="error-message">
-                                  <p>Erro ao criar aula: ${error.message}</p>
-                                </div>`;
+        console.error('Erro:', error);
+        showToast('Erro ao processar: ' + error.message);
+        await carregarTodasAulas();
       }
     }
 
     // Inicialização
-    document.getElementById("tipo").addEventListener("change", () => {
-      carregarMaiorNumeroAula();
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarTodasAulas();
     });
-
-    document.getElementById("carregar-btn").addEventListener("click", () => carregarAula());
-
-    // Configura a data inicial
-    if (dataParam && dataParam !== "None") {
-      // Se tem parâmetro de data, usa ele
-      const dataInput = formatarDataParaInput(dataParam);
-      document.getElementById("data-input").value = dataInput;
-      document.getElementById("tipo").value = tipoParam || "iniciacao";
-
-      // Carrega a aula com os parâmetros
-      carregarMaiorNumeroAula().then(() => {
-        carregarAula(dataParam, numeroParam && numeroParam !== "None" ? numeroParam : null);
-      });
-    } else {
-      // Sem parâmetros, carrega a aula do dia atual
-      document.getElementById("data-input").value = getDataHoje();
-      carregarMaiorNumeroAula().then(() => {
-        carregarAula();
-      });
-    }
   </script>
 </body>
 </html>

@@ -7,7 +7,6 @@ import os
 import re
 import qrcode
 import json
-import locale
 import socket
 from io import BytesIO
 import webbrowser
@@ -17,6 +16,7 @@ import threading
 import subprocess
 
 # Configuração de locale para datas em português
+import locale
 locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
@@ -104,7 +104,15 @@ def presenca_carregar():
     data = request.args.get("data")
     path = f"{tipo}/frequencia/presencas/{data}.txt"
     conteudo, sha_ou_erro = github_get(path)
-    return jsonify({"conteudo": conteudo or "", "sha": sha_ou_erro if conteudo else None})
+
+    github_url = f"https://github.com/{REPO}/blob/{BRANCH}/{path}"
+
+    return jsonify({
+        "conteudo": conteudo or "",
+        "sha": sha_ou_erro if conteudo else None,
+        "caminho": path,
+        "github_url": github_url
+    })
 
 
 @app.route("/api/presenca/salvar", methods=["POST"])
@@ -113,12 +121,35 @@ def presenca_salvar():
     tipo     = dados["tipo"]
     data     = dados["data"]
     conteudo = dados["conteudo"]
+    sha      = dados.get("sha")
     path = f"{tipo}/frequencia/presencas/{data}.txt"
-    conteudo_atual, sha_atual = github_get(path)
-    if conteudo_atual is not None:
-        github_delete(path, sha_atual, message=f"apaga presença {tipo} {data} para recriar")
-    ok, resp = github_put(path, conteudo, message=f"presença {tipo} {data}")
-    return jsonify({"ok": ok, "github": resp})
+
+    # Se não tem SHA, verificar se o arquivo já existe no GitHub
+    if not sha:
+        conteudo_atual, sha_atual = github_get(path)
+        if conteudo_atual is not None:
+            # Se o arquivo existe mas o usuário passou sha=None, deletar primeiro
+            github_delete(path, sha_atual, message=f"apaga presença {tipo} {data} para recriar")
+            sha = None
+        else:
+            sha = None
+
+    # Se ainda não tem SHA, criar novo arquivo
+    if not sha:
+        ok, resp = github_put(path, conteudo, sha=None, message=f"presença {tipo} {data}")
+    else:
+        # Se tem SHA, atualizar existente
+        ok, resp = github_put(path, conteudo, sha=sha, message=f"presença {tipo} {data}")
+
+    if ok:
+        github_url = f"https://github.com/{REPO}/blob/{BRANCH}/{path}"
+        return jsonify({
+            "ok": True,
+            "github": resp,
+            "github_url": github_url
+        })
+    else:
+        return jsonify({"ok": False, "github": resp})
 
 
 @app.route("/api/presenca/estatisticas")
@@ -147,6 +178,71 @@ def presenca_estatisticas():
     return jsonify({"total_aulas": total_aulas, "stats": stats})
 
 
+@app.route("/api/presenca/criar_arquivo", methods=["POST"])
+def presenca_criar_arquivo():
+    dados = request.get_json()
+    tipo = dados["tipo"]
+    data = dados["data"]
+
+    path_alunos = f"{tipo}/frequencia/alunos.txt"
+    conteudo_alunos, _ = github_get(path_alunos)
+
+    if not conteudo_alunos:
+        return jsonify({
+            "ok": False,
+            "error": "Nenhum aluno cadastrado nesta turma"
+        }), 400
+
+    lista_alunos = [n.strip() for n in conteudo_alunos.splitlines() if n.strip()]
+
+    if not lista_alunos:
+        return jsonify({
+            "ok": False,
+            "error": "Lista de alunos vazia"
+        }), 400
+
+    path_presenca = f"{tipo}/frequencia/presencas/{data}.txt"
+    conteudo_presenca = "\n".join(lista_alunos) + "\n"
+
+    ok, resp = github_put(
+        path_presenca,
+        conteudo_presenca,
+        message=f"cria presença {tipo} {data} com todos os alunos"
+    )
+
+    if ok:
+        github_url = f"https://github.com/{REPO}/blob/{BRANCH}/{path_presenca}"
+        return jsonify({
+            "ok": True,
+            "github_url": github_url,
+            "caminho": path_presenca
+        })
+    else:
+        return jsonify({
+            "ok": False,
+            "error": resp
+        }), 500
+
+
+@app.route("/api/presenca/listar_arquivos")
+def presenca_listar_arquivos():
+    tipo = request.args.get("tipo")
+    arquivos = github_list_files(f"{tipo}/frequencia/presencas")
+
+    resultado = []
+    for arq in arquivos:
+        nome = arq["name"]
+        if nome.endswith(".txt"):
+            data = nome.replace(".txt", "")
+            resultado.append({
+                "nome": nome,
+                "data": data,
+                "download_url": arq.get("download_url")
+            })
+
+    return jsonify({"arquivos": resultado})
+
+
 # Template 2: Alunos
 @app.route("/alunos")
 def alunos():
@@ -160,7 +256,16 @@ def alunos_carregar():
     conteudo, sha_ou_erro = github_get(path)
     lista = [n.strip() for n in (conteudo or "").splitlines() if n.strip()]
     erro = sha_ou_erro if not conteudo else None
-    return jsonify({"alunos": lista, "sha": sha_ou_erro if conteudo else None, "erro": erro})
+
+    github_url = f"https://github.com/{REPO}/blob/{BRANCH}/{path}"
+
+    return jsonify({
+        "alunos": lista,
+        "sha": sha_ou_erro if conteudo else None,
+        "erro": erro,
+        "caminho": path,
+        "github_url": github_url
+    })
 
 
 @app.route("/api/alunos/salvar", methods=["POST"])
@@ -178,30 +283,52 @@ def alunos_salvar():
 # Template 3: Ensino
 @app.route("/ensino")
 def ensino():
-    """Carrega aula específica se tiver parâmetros, ou a aula do dia atual"""
     tipo = request.args.get("tipo", "iniciacao")
     data = request.args.get("data")
     numero = request.args.get("numero")
+    listar = request.args.get("listar", "false")
 
-    return render_template("ensino.html", tipo_param=tipo, data_param=data, numero_param=numero)
+    return render_template("ensino.html",
+                          tipo_param=tipo,
+                          data_param=data,
+                          numero_param=numero,
+                          listar_param=listar)
 
 
 @app.route("/api/ensino/listar_aulas")
 def ensino_listar_aulas():
-    """Lista todas as aulas de uma turma e retorna o maior número de aula"""
     tipo = request.args.get("tipo", "iniciacao")
     aulas = github_list(f"{tipo}/ensino/aulas")
 
+    aulas_formatadas = []
     numeros = []
+
     for aula in aulas:
-        match = re.match(r"Aula(\d+)", aula)
+        match = re.match(r"Aula(\d+)-(\d{2}-\d{2}-\d{2})\.md", aula)
         if match:
-            numeros.append(int(match.group(1)))
+            numero = match.group(1)
+            data = match.group(2)
+            numeros.append(int(numero))
+            aulas_formatadas.append({
+                "nome": aula,
+                "data": data,
+                "numero": numero
+            })
+        else:
+            match_num = re.match(r"Aula(\d+)", aula)
+            if match_num:
+                numero = match_num.group(1)
+                numeros.append(int(numero))
+                aulas_formatadas.append({
+                    "nome": aula,
+                    "data": "",
+                    "numero": numero
+                })
 
     maior_numero = max(numeros) if numeros else 0
 
     return jsonify({
-        "aulas": aulas,
+        "aulas": aulas_formatadas,
         "maior_numero": maior_numero,
         "total": len(aulas)
     })
@@ -209,7 +336,6 @@ def ensino_listar_aulas():
 
 @app.route("/api/ensino/carregar_aula")
 def ensino_carregar_aula():
-    """Carrega uma aula específica baseada na turma, data e número da aula"""
     tipo = request.args.get("tipo", "iniciacao")
     data = request.args.get("data")
     numero = request.args.get("numero")
@@ -229,11 +355,15 @@ def ensino_carregar_aula():
     conteudo, sha = github_get(path)
 
     if conteudo is not None:
+        match = re.match(r"Aula(\d+)", nome_arquivo)
+        numero_aula = match.group(1) if match else ""
+
         return jsonify({
             "exists": True,
             "conteudo": conteudo,
             "sha": sha,
             "nome_arquivo": nome_arquivo,
+            "numero": numero_aula,
             "url": f"https://github.com/{REPO}/blob/{BRANCH}/{tipo}/ensino/aulas/{nome_arquivo}"
         })
     else:
@@ -242,7 +372,6 @@ def ensino_carregar_aula():
 
 @app.route("/api/ensino/criar_aula", methods=["POST"])
 def ensino_criar_aula():
-    """Cria uma nova aula com o próximo número disponível"""
     dados = request.get_json()
     tipo = dados["tipo"]
     data = dados["data"]
@@ -265,9 +394,9 @@ def ensino_criar_aula():
 - Atividade 2
 - Atividade 3
 
-## Observações p´ós aula
+## Observações pós aula
 
-nenhuma observaç~ão.
+nenhuma observação.
 """
 
     nome_arquivo = f"Aula{numero}-{data}.md"
@@ -285,32 +414,6 @@ nenhuma observaç~ão.
         return jsonify({"ok": False, "error": resp})
 
 
-@app.route('/driver')
-def baixar_mysql_connector():
-    pasta = os.path.join(app.root_path, 'apagar-server')
-    arquivo = 'mysql-connector-j-9.7.0.zip'
-
-    if not os.path.exists(os.path.join(pasta, arquivo)):
-        os.abort(404)
-
-    return send_from_directory(directory=pasta, path=arquivo, as_attachment=True)
-
-@app.route('/scriptsh')
-def baixar_script_sh():
-    pasta = os.path.join(app.root_path, 'apagar-server')
-    arquivo = 'script.sh'
-
-    if not os.path.exists(os.path.join(pasta, arquivo)):
-        os.abort(404)
-
-    return send_from_directory(
-        directory=pasta,
-        path=arquivo,
-        as_attachment=True,
-        mimetype='text/x-sh'
-    )
-
-
 # ===================================================================
 # PARTE 2 - APP SECUNDÁRIO (Placar, Campeonatos, Partidas)
 # ===================================================================
@@ -326,17 +429,6 @@ placar = {
     "qr-code": 0
 }
 
-resultado = {
-    "-1": {
-    "ganhador": 1,
-    "perdedor": 2,
-    "nome-ganhador": "undefined",
-    "nome-perdedor": "undefined",
-    "sets-ganhador": 2,
-    "sets-perdedor": 1
-    }
-}
-
 partida = {
     "nome1": "undefined",
     "nome2": "undefined",
@@ -346,7 +438,7 @@ partida = {
     "partida": -1,
     "situacao": 0
 }
-data_hoje_formatada = datetime.now().strftime('%d-%b-%y').lower()
+
 data_campeonato = '17-ago-24'
 
 # --- Funções auxiliares do app secundário ---
@@ -364,7 +456,8 @@ def get_rota_servidor():
     site_url = f"http://{local_ip}:5000"
     return site_url
 
-def generate_qr_rota(rota = "/"):
+
+def generate_qr_rota(rota="/"):
     site_url = f"{get_rota_servidor()}{rota}"
 
     qr = qrcode.QRCode(
@@ -378,12 +471,14 @@ def generate_qr_rota(rota = "/"):
     img = qr.make_image(fill_color="black", back_color="white")
     return img
 
-def generate_qr_rota_str(rota = "/"):
+
+def generate_qr_rota_str(rota="/"):
     img = generate_qr_rota(rota)
     buffered = BytesIO()
     img.save(buffered, format="png")
     img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
     return img_str
+
 
 def show_qr_code(qr, title, duration):
     root = Tk()
@@ -407,27 +502,13 @@ def show_qr_code(qr, title, duration):
     root.after(duration, root.destroy)
     root.mainloop()
 
+
 def show_qr_code_in_thread(qr, title="QR Code", duration=10000):
     thread = threading.Thread(target=show_qr_code, args=(qr, title, duration))
     thread.start()
 
-def atualiza_quantidade_jogadores_em_resultados(quantidade_jogadores):
-    resultados_path = 'json/resultados.json'
-    if os.path.exists(resultados_path):
-        with open(resultados_path, 'r') as f:
-            resultados = json.load(f)
-    else:
-        resultados = {}
-    resultados.update({'quantidade-jogadores': quantidade_jogadores, 'data': data_hoje_formatada})
-    with open(resultados_path, 'w') as f:
-        json.dump(resultados, f, indent=2)
-
 
 # --- Rotas do App Secundário ---
-
-@app.route('/tabela_leitura')
-def tabela_leitura():
-    return render_template('placar/tabelaLeitura.html', placar=placar)
 
 @app.route('/placar')
 def funcao_placar():
@@ -437,45 +518,11 @@ def funcao_placar():
 
     return render_template('placar/placar.html', placar=placar)
 
-@app.route('/campeonatos')
-def campeonatos():
-    campeonatos_index_path = 'json/campeonatos/campeonatos.json'
-
-    if os.path.exists(campeonatos_index_path):
-        with open(campeonatos_index_path, 'r') as f:
-            campeonatos_index = json.load(f)
-    else:
-        campeonatos_index = {}
-    return render_template('placar/campeonatos.html', campeonatos_index=campeonatos_index)
-
-@app.route('/tabela_v1')
-def tabela():
-    return render_template('placar/tabela.html', placar=placar)
-
-@app.route('/tabela')
-def tabela_v2():
-    jogadores_path = 'json/jogadores.json'
-    if os.path.exists(jogadores_path):
-        with open(jogadores_path, 'r') as f:
-            jogadores = json.load(f)
-    else:
-        jogadores = {}
-
-    resultados_path = 'json/resultados.json'
-    if os.path.exists(resultados_path):
-        with open(resultados_path, 'r') as f:
-            resultados = json.load(f)
-    else:
-        resultados = {}
-    return render_template('placar/tabela_v2.html', resultados=resultados, placar_atual=placar, partida_atual=partida, jogadores=jogadores.get('jogadores', {}))
 
 @app.route('/controle')
 def controle():
     return render_template('placar/controle.html', placar=placar, partida=partida)
 
-@app.route('/jogadores')
-def jogadores():
-    return render_template('placar/jogadores.html')
 
 @app.route('/links')
 def links():
@@ -490,6 +537,7 @@ def links():
         qr_codes[f"{key}"] = generate_qr_rota_str(html_links[f"{key}"])
     return render_template('placar/links.html', links=html_links, qr_codes=qr_codes)
 
+
 @app.route('/post-placar', methods=['POST'])
 def post_placar():
     data = request.json
@@ -499,46 +547,18 @@ def post_placar():
         show_qr_code_in_thread(generate_qr_rota("/links"), "/links", 10000)
     return jsonify(placar)
 
+
 @app.route('/get-placar', methods=['GET'])
 def get_placar():
     global placar
     return jsonify(placar)
+
 
 @app.route('/get-partida', methods=['GET'])
 def get_partida():
     global partida
     return jsonify(partida)
 
-@app.route('/post-jogadores', methods=['POST'])
-def post_jogadores():
-    data = request.json
-    atualiza_quantidade_jogadores_em_resultados(data['quantidade-jogadores'])
-    with open('json/jogadores.json', 'w') as f:
-        json.dump(data, f, indent=2)
-
-    return jsonify({"status": "success", "data": data})
-
-@app.route('/salvar-campeonato', methods=['POST'])
-def salvar_campeonato():
-    data = request.json
-    campeonato_path = f'json/campeonatos/{data_hoje_formatada}.json'
-    with open(campeonato_path, 'w') as f:
-        json.dump(data, f, indent=2)
-
-    campeonatos_index_path = 'json/campeonatos/campeonatos.json'
-    if os.path.exists(campeonatos_index_path):
-        with open(campeonatos_index_path, 'r') as f:
-            campeonatos_index = json.load(f)
-    else:
-        campeonatos_index = {}
-
-    max_index = len(campeonatos_index)
-    campeonatos_index[str(max_index + 1)] = data_hoje_formatada
-
-    with open(campeonatos_index_path, 'w') as f:
-        json.dump(campeonatos_index, f, indent=2)
-
-    return jsonify({"status": "success", "data": "aa"})
 
 @app.route('/post-partida', methods=['POST'])
 def post_partida():
@@ -547,100 +567,6 @@ def post_partida():
     partida = data
     return jsonify({"status": "success", "placar": placar})
 
-@app.route('/post-data-campeonato', methods=['POST'])
-def post_data_campeonato():
-    data = request.json
-    global data_campeonato
-    data_campeonato = data['data']
-    return jsonify({"status": "success"})
-
-@app.route('/campeonato-salvo')
-def campeonato_salvo():
-    campeonato_path = f'json/campeonatos/{data_campeonato}.json'
-
-    if os.path.exists(campeonato_path):
-        with open(campeonato_path, 'r') as f:
-            dados_campeonato = json.load(f)
-    else:
-        dados_campeonato = {}
-    return render_template('placar/campeonato.html', dados_campeonato=dados_campeonato)
-
-@app.route('/reiniciar-campeonato', methods=['POST'])
-def reiniciar_campeonato():
-    if request.method == 'POST':
-        try:
-            with open('json/resultados.json', 'w') as file:
-                json.dump({}, file)
-            return jsonify({'message': 'Campeonato reiniciado com sucesso!'}), 200
-        except Exception as e:
-            print(f"Erro ao atualizar o arquivo JSON: {e}")
-            return jsonify({'message': 'Erro ao reiniciar o campeonato'}), 500
-
-@app.route('/get-partidas', methods=['GET'])
-def get_partidas():
-    partidas_path = 'json/partidas.json'
-
-    if os.path.exists(partidas_path):
-        with open(partidas_path, 'r') as f:
-            partidas = json.load(f)
-    else:
-        partidas = {}
-
-    return jsonify(partidas)
-
-@app.route('/get-jogadores', methods=['GET'])
-def get_jogadores():
-    jogadores_path = 'json/jogadores.json'
-
-    if os.path.exists(jogadores_path):
-        with open(jogadores_path, 'r') as f:
-            jogadores = json.load(f)
-    else:
-        jogadores = {}
-
-    return jsonify(jogadores)
-
-@app.route('/post-resultado', methods=['POST'])
-def post_resultado():
-    data = request.json
-
-    resultados_path = 'json/resultados.json'
-
-    if os.path.exists(resultados_path):
-        with open(resultados_path, 'r') as f:
-            resultados = json.load(f)
-    else:
-        resultados = {}
-
-    resultados.update(data)
-
-    with open(resultados_path, 'w') as f:
-        json.dump(resultados, f, indent=2)
-
-    partida['partida'] = -1
-    return jsonify({"status": "success", "resultados": resultados})
-
-@app.route('/get-tabela', methods=['GET'])
-def get_tabela_campeonato():
-    jogadores_path = 'json/jogadores.json'
-    resultados_path = 'json/resultados.json'
-
-    if os.path.exists(jogadores_path):
-        with open(jogadores_path, 'r') as f:
-            jogadores = json.load(f)
-    else:
-        jogadores = []
-    if os.path.exists(resultados_path):
-        with open(resultados_path, 'r') as f:
-            resultados = json.load(f)
-    else:
-        resultados = []
-
-    tabela = {
-        'jogadores': jogadores,
-        'resultados': resultados
-    }
-    return jsonify(tabela)
 
 @app.route('/partida-unica')
 def partida_unica():
@@ -648,6 +574,7 @@ def partida_unica():
     partida["partida"] = "única"
     partida["rodada"] = "única"
     return render_template('placar/partida_unica.html', placar=placar, partida=partida)
+
 
 @app.route('/reiniciar-partida-unica', methods=['POST'])
 def reiniciar_partida_unica():
@@ -672,6 +599,7 @@ def reiniciar_partida_unica():
     })
     return jsonify({"status": "success"})
 
+
 @app.route('/atualizar-nomes-partida-unica', methods=['POST'])
 def atualizar_nomes_partida_unica():
     global partida
@@ -683,6 +611,11 @@ def atualizar_nomes_partida_unica():
     partida['rodada'] = "única"
     partida['partida'] = "única"
     return jsonify({"status": "success", "partida": partida})
+
+
+@app.route("/historico")
+def historico():
+    return render_template("historico.html")
 
 
 if __name__ == "__main__":

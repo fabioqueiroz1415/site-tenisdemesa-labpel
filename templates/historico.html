@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labpel - Gerenciar Alunos</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #000;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+      perspective: 1000px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #000;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #cc6ce7;
+      margin-bottom: 30px;
+      font-size: 2em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .controls {
+      background-color: #0a0a0a;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    label {
+      font-weight: bold;
+      color: #cc6ce7;
+    }
+
+    select {
+      background: #2c2c3e;
+      color: #e0e0e0;
+      border: 1px solid #cc6ce7;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    select:hover {
+      background: #3c3c5e;
+    }
+
+    button {
+      background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
+      color: #cc6ce7;
+      border: 1px solid rgba(204, 108, 231, 0.3);
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
+      border-color: #cc6ce7;
+      box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
+    }
+
+    button:active {
+      color: #444;
+    }
+
+    button.active {
+      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
+      border-color: #cc6ce7;
+      box-shadow: 0 0 20px rgba(204, 108, 231, 0.2);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 5px;
+    }
+
+    .github-btn {
+      background: linear-gradient(135deg, #24292e 0%, #1a1e22 100%);
+      border-color: #6a737d;
+      color: #f0f6fc;
+      margin-left: auto;
+    }
+
+    .github-btn:hover {
+      background: linear-gradient(135deg, #2f363d 0%, #24292e 100%);
+      border-color: #8b949e;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+    }
+
+    .historico-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      background-color: #0a0a0a;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+      padding: 10px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .historico-table {
+      width: max-content;
+      border-collapse: collapse;
+      table-layout: auto;
+    }
+
+    .historico-table th,
+    .historico-table td {
+      width: 1px;
+      white-space: nowrap;
+      border-left: 1px solid #333;
+      border-right: 1px solid #333;
+      box-sizing: border-box;
+    }
+
+    /* Dias inclinados em -45° */
+    .historico-table th.data-cell {
+      width: 28px !important;
+      min-width: 28px !important;
+      max-width: 28px !important;
+      height: 45px;
+      padding: 0;
+      background: #1a1a2e;
+      border-bottom: 2px solid #cc6ce7;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-align: center;
+      vertical-align: bottom;
+    }
+    .historico-table th.data-cell:hover {
+      background: #2a2a4e;
+      color: #fff;
+    }
+
+    .historico-table th.data-cell .dia-texto {
+      display: inline-block;
+      transform: rotate(-45deg);
+      transform-origin: center;
+      white-space: nowrap;
+      font-size: 1em;   /* AUMENTADO PARA 1em */
+    }
+
+    /* Coluna do nome */
+    .historico-table .col-nome {
+      text-align: left;
+      font-weight: bold;
+      color: #e0e0e0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      background: #0a0a0a;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+    }
+    .historico-table th.col-nome {
+      background: #1a1a2e;
+      position: sticky;
+      left: 0;
+      z-index: 11;
+      cursor: pointer;
+      user-select: none;
+    }
+    .historico-table th.col-nome:hover {
+      background: #2a2a4e;
+    }
+
+    .historico-table .col-freq {
+      text-align: center;
+      background: #0a0a0a;
+      position: sticky;
+      left: var(--freq-col-left, 0px);
+      z-index: 5;
+      white-space: nowrap;
+      min-width: 70px;
+      width: 70px;
+    }
+    .historico-table th.col-freq {
+      background: #1a1a2e;
+      position: sticky;
+      left: var(--freq-col-left, 0px);
+      z-index: 11;
+      cursor: pointer;
+      user-select: none;
+    }
+    .historico-table th.col-freq:hover {
+      background: #2a2a4e;
+    }
+
+    .data-cell {
+      width: 20px !important;
+      min-width: 20px !important;
+      max-width: 20px !important;
+      padding: 2px 0 !important;
+      text-align: center !important;
+      vertical-align: middle !important;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .historico-table td.data-cell {
+      background: #0a0a0a;
+      border-bottom: 1px solid #222;
+      cursor: pointer;
+    }
+    .historico-table tr:hover td.data-cell {
+      background: rgba(204, 108, 231, 0.05);
+    }
+
+    .header-mais {
+      background: #1a1a2e;
+      color: #cc6ce7;
+      font-size: 1.2em;
+      cursor: pointer;
+      text-align: center;
+      vertical-align: middle;
+      width: 30px;
+      min-width: 30px;
+      max-width: 30px;
+    }
+    .header-mais:hover {
+      background: #2a2a4e;
+    }
+
+    .historico-table th {
+      background: #1a1a2e;
+      color: #cc6ce7;
+      padding: 6px 4px;
+      text-align: center;
+      border-bottom: 2px solid #cc6ce7;
+      font-size: 0.85em;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .historico-table th.header-ano {
+      background: #1a1a2e;
+      color: #cc6ce7;
+      font-size: 0.9em;
+      border-bottom: 1px solid #555;
+    }
+    .historico-table th.header-mes {
+      background: #222244;
+      color: #cc6ce7;
+      font-size: 0.8em;
+      border-bottom: 1px solid #444;
+    }
+
+    .historico-table td {
+      padding: 4px 2px;
+      text-align: center;
+      border-bottom: 1px solid #222;
+      font-size: 0.9em;
+    }
+
+    .bola-presenca {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: #cc6ce7;
+      box-shadow: 0 0 10px rgba(204, 108, 231, 0.4);
+      transition: all 0.3s ease;
+    }
+    .bola-presenca:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 20px rgba(204, 108, 231, 0.6);
+    }
+
+    .bola-ausente {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: #1a1a1a;
+      border: 2px solid #777;
+      transition: all 0.3s ease;
+    }
+
+    .bola-cinza {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: #555;
+      border: 1px solid #666;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .freq-grafico-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .freq-grafico-container canvas {
+      display: block;
+    }
+
+    .total-info {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      padding: 10px 0;
+      color: #888;
+      font-size: 0.9em;
+    }
+
+    .total-info span {
+      color: #cc6ce7;
+      font-weight: bold;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+
+    .no-data .icon {
+      font-size: 3em;
+      display: block;
+      margin-bottom: 15px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #cc6ce7;
+    }
+
+    .historico-container::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .historico-container::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+
+    .historico-container::-webkit-scrollbar-thumb {
+      background: #cc6ce7;
+      border-radius: 4px;
+    }
+
+    .historico-container::-webkit-scrollbar-thumb:hover {
+      background: #dd88ff;
+    }
+
+    .sort-indicator {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: 0.8em;
+      color: #cc6ce7;
+    }
+
+    .sort-indicator.inactive {
+      opacity: 0.3;
+    }
+
+    .status-texto {
+      display: flex;
+      gap: 20px;
+      color: #888;
+      font-size: 0.85em;
+      margin-top: 10px;
+      padding: 10px 0;
+      border-top: 1px solid #333;
+      flex-wrap: wrap;
+    }
+
+    .status-texto .legenda-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-texto .bola-pequena {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    .status-texto .bola-pequena.presente {
+      background-color: #cc6ce7;
+    }
+
+    .status-texto .bola-pequena.ausente {
+      border: 1px solid #333;
+      background-color: transparent;
+    }
+
+    .status-texto .bola-pequena.cinza {
+      background-color: #555;
+      border: 1px solid #666;
+    }
+
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .popup-overlay.active {
+      display: flex;
+    }
+    .popup-box {
+      background: #1a1a2e;
+      border: 1px solid #cc6ce7;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 350px;
+      width: 90%;
+      box-shadow: 0 0 40px rgba(204,108,231,0.3);
+      text-align: center;
+    }
+    .popup-box h3 {
+      color: #cc6ce7;
+      margin-bottom: 20px;
+    }
+    .popup-box input[type="date"] {
+      background: #2c2c3e;
+      color: #e0e0e0;
+      border: 1px solid #cc6ce7;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 1em;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .popup-box .popup-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .popup-box .popup-buttons button {
+      padding: 8px 20px;
+    }
+
+    /* ===== RESPONSIVO ===== */
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
+      }
+
+      .container {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 15px;
+      }
+      .control-group {
+        justify-content: space-between;
+      }
+      .github-btn {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .historico-container {
+        justify-content: flex-start;
+      }
+
+      .historico-table {
+        min-width: 100%;
+      }
+
+      .historico-table th,
+      .historico-table td {
+        padding: 4px 2px;
+        font-size: 0.75em;
+      }
+      .bola-presenca,
+      .bola-ausente,
+      .bola-cinza {
+        width: 14px;
+        height: 14px;
+      }
+      .data-cell {
+        width: 16px !important;
+        min-width: 16px !important;
+        max-width: 16px !important;
+        padding: 1px 0 !important;
+      }
+      .historico-table th.data-cell {
+        width: 22px !important;
+        min-width: 22px !important;
+        max-width: 22px !important;
+        height: 35px;
+      }
+      .historico-table th.data-cell .dia-texto {
+        font-size: 1em;   /* AUMENTADO TAMBÉM AQUI */
+      }
+      .historico-table .col-freq {
+        min-width: 50px;
+        width: 50px;
+      }
+      .historico-table th.col-freq {
+        min-width: 50px;
+        width: 50px;
+      }
+      .total-info {
+        gap: 15px;
+        font-size: 0.8em;
+        padding: 10px 15px;
+      }
+      .status-texto {
+        padding: 10px 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .bola-presenca,
+      .bola-ausente,
+      .bola-cinza {
+        width: 12px;
+        height: 12px;
+      }
+      .data-cell {
+        width: 14px !important;
+        min-width: 14px !important;
+        max-width: 14px !important;
+        padding: 1px 0 !important;
+      }
+      .historico-table th.data-cell {
+        width: 18px !important;
+        min-width: 18px !important;
+        max-width: 18px !important;
+        height: 30px;
+      }
+      .historico-table th.data-cell .dia-texto {
+        font-size: 1em;   /* AUMENTADO TAMBÉM AQUI */
+      }
+      .historico-table th,
+      .historico-table td {
+        padding: 2px 1px;
+        font-size: 0.65em;
+      }
+      .historico-table .col-freq {
+        min-width: 40px;
+        width: 40px;
+      }
+      .historico-table th.col-freq {
+        min-width: 40px;
+        width: 40px;
+      }
+      .status-texto .bola-pequena {
+        width: 10px;
+        height: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Gerenciar Alunos</h1>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>Turma:</label>
+      <select id="tipo">
+        <option value="iniciacao">Iniciação</option>
+        <option value="aprimoramento">Aprimoramento</option>
+      </select>
+    </div>
+    <button onclick="abrirGitHub()" class="github-btn">Gerenciar alunos no GitHub</button>
+  </div>
+
+  <div id="total-info" class="total-info"></div>
+
+  <div class="historico-container" id="historico-container">
+    <div id="conteudo-historico" class="loading">Carregando...</div>
+  </div>
+
+  <div class="status-texto" id="legenda">
+    <span class="legenda-item">
+      <span class="bola-pequena presente"></span>
+      Presente
+    </span>
+    <span class="legenda-item">
+      <span class="bola-pequena ausente"></span>
+      Ausente
+    </span>
+  </div>
+</div>
+
+<!-- Popup calendário -->
+<div class="popup-overlay" id="popup-calendario">
+  <div class="popup-box">
+    <h3>📅 Escolha a data</h3>
+    <input type="date" id="input-data">
+    <div class="popup-buttons">
+      <button onclick="fecharPopup()">Cancelar</button>
+      <button onclick="criarFrequencia()" style="background: #cc6ce7; color: #000;">Ok</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let dadosHistorico = {
+    alunos: [],
+    stats: {},
+    datasDisponiveis: [],
+    presencasPorAluno: {},
+    totalAulas: 0,
+    arquivosInfo: {}
+  };
+
+  let ordemAtual = {
+    tipo: null,
+    direcao: null
+  };
+
+  let githubUrl = '';
+  let BRANCH = 'main';
+
+  // ---------- POPUP ----------
+  function abrirPopup() {
+    document.getElementById('popup-calendario').classList.add('active');
+    const hoje = new Date().toISOString().split('T')[0];
+    document.getElementById('input-data').value = hoje;
+  }
+
+  function fecharPopup() {
+    document.getElementById('popup-calendario').classList.remove('active');
+  }
+
+  async function criarFrequencia() {
+    const data = document.getElementById('input-data').value;
+    if (!data) {
+      alert('Selecione uma data.');
+      return;
+    }
+    const partes = data.split('-');
+    const dataFormatada = `${partes[2]}-${partes[1]}-${partes[0].slice(-2)}`;
+
+    const tipo = document.getElementById('tipo').value;
+    const alunos = dadosHistorico.alunos;
+    if (alunos.length === 0) {
+      alert('Nenhum aluno cadastrado.');
+      fecharPopup();
+      return;
+    }
+
+    try {
+      const respCarregar = await fetch(`/api/presenca/carregar?tipo=${tipo}&data=${dataFormatada}`);
+      const jsonCarregar = await respCarregar.json();
+
+      const repoPath = githubUrl.replace('https://github.com/', '').split('/blob')[0] || '';
+      const path = `${tipo}/frequencia/presencas/${dataFormatada}.txt`;
+      const githubFileUrl = `https://github.com/${repoPath}/blob/${BRANCH}/${path}`;
+
+      if (jsonCarregar.conteudo || jsonCarregar.sha) {
+        window.open(githubFileUrl, '_blank');
+        fecharPopup();
+        return;
+      }
+
+      const conteudo = alunos.join('\n');
+      const respSalvar = await fetch('/api/presenca/salvar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tipo: tipo,
+          data: dataFormatada,
+          conteudo: conteudo,
+          sha: null
+        })
+      });
+
+      const jsonSalvar = await respSalvar.json();
+
+      if (jsonSalvar.ok) {
+        if (jsonSalvar.github_url) {
+          window.open(jsonSalvar.github_url, '_blank');
+        } else {
+          window.open(githubFileUrl, '_blank');
+        }
+        fecharPopup();
+        setTimeout(() => carregarHistorico(), 500);
+      } else {
+        const mensagem = jsonSalvar.github?.message || jsonSalvar.error || 'Erro desconhecido';
+        alert('Erro ao criar frequência: ' + mensagem);
+      }
+    } catch (error) {
+      alert('Erro: ' + error.message);
+    }
+  }
+
+  // ---------- FORMATAÇÃO DE NOME ----------
+  function formatarNome(nomeCompleto) {
+    const partes = nomeCompleto.trim().split(/\s+/);
+    if (partes.length === 0) return '';
+    if (partes.length === 1) return partes[0];
+
+    const primeiro = partes[0];
+    const segundo = partes[1];
+    const terceiro = partes[2] || '';
+
+    if (segundo.length <= 2) {
+      if (terceiro) {
+        return `${primeiro} ${segundo} ${terceiro.charAt(0).toUpperCase()}.`;
+      } else {
+        return `${primeiro} ${segundo}`;
+      }
+    } else {
+      return `${primeiro} ${segundo.charAt(0).toUpperCase()}.`;
+    }
+  }
+
+  // ---------- GRÁFICO ----------
+  function desenharGrafico(canvasId, porcentagemPresenca) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const tamanho = 40;
+    canvas.width = tamanho;
+    canvas.height = tamanho;
+
+    const centroX = tamanho / 2;
+    const centroY = tamanho / 2;
+    const raio = tamanho / 2 - 2;
+
+    ctx.clearRect(0, 0, tamanho, tamanho);
+
+    ctx.beginPath();
+    ctx.arc(centroX, centroY, raio, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    if (porcentagemPresenca > 0) {
+      const anguloFinal = (porcentagemPresenca / 100) * 2 * Math.PI;
+      ctx.beginPath();
+      ctx.moveTo(centroX, centroY);
+      ctx.arc(centroX, centroY, raio, -Math.PI / 2, -Math.PI / 2 + anguloFinal);
+      ctx.closePath();
+      ctx.fillStyle = '#cc6ce7';
+      ctx.fill();
+    }
+
+    ctx.beginPath();
+    ctx.arc(centroX, centroY, raio - 8, 0, 2 * Math.PI);
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(centroX, centroY, raio - 8, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.font = 'bold 10px "Segoe UI"';
+    ctx.fillStyle = '#cc6ce7';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${porcentagemPresenca}`, centroX, centroY);
+  }
+
+  // ---------- ORDENAÇÃO ----------
+  function getSortIndicator() {
+    if (ordemAtual.tipo === null) return '';
+    const dir = ordemAtual.direcao === 'asc' ? '↑' : '↓';
+    return `<span class="sort-indicator">${dir}</span>`;
+  }
+
+  function ordenarPorNome() {
+    if (ordemAtual.tipo === 'nome') {
+      ordemAtual.direcao = ordemAtual.direcao === 'asc' ? 'desc' : 'asc';
+    } else {
+      ordemAtual.tipo = 'nome';
+      ordemAtual.direcao = 'asc';
+    }
+    renderizarHistorico();
+  }
+
+  function ordenarPorFrequencia() {
+    if (ordemAtual.tipo === 'frequencia') {
+      ordemAtual.direcao = ordemAtual.direcao === 'asc' ? 'desc' : 'asc';
+    } else {
+      ordemAtual.tipo = 'frequencia';
+      ordemAtual.direcao = 'desc';
+    }
+    renderizarHistorico();
+  }
+
+  function abrirGitHub() {
+    if (githubUrl && githubUrl !== '#') {
+      window.open(githubUrl, '_blank');
+    } else {
+      alert('Link do GitHub não disponível para esta turma.');
+    }
+  }
+
+  function getAlunosOrdenados() {
+    const { alunos, stats } = dadosHistorico;
+    if (ordemAtual.tipo === null) {
+      return [...alunos];
+    }
+    const sorted = [...alunos];
+    if (ordemAtual.tipo === 'nome') {
+      sorted.sort((a, b) => {
+        const comp = a.localeCompare(b, 'pt-br');
+        return ordemAtual.direcao === 'asc' ? comp : -comp;
+      });
+    } else if (ordemAtual.tipo === 'frequencia') {
+      sorted.sort((a, b) => {
+        const freqA = stats[a]?.pct_presenca || 0;
+        const freqB = stats[b]?.pct_presenca || 0;
+        return ordemAtual.direcao === 'desc' ? freqB - freqA : freqA - freqB;
+      });
+    }
+    return sorted;
+  }
+
+  // ---------- AGRUPAMENTO DE DATAS ----------
+  function agruparDatas(datas) {
+    const grupos = [];
+    let anoAtual = null;
+    let mesAtual = null;
+    let grupoAtual = null;
+
+    for (const data of datas) {
+      const [dia, mes, ano] = data.split('-').map(Number);
+      const anoStr = String(ano).padStart(2, '0');
+      const mesStr = String(mes).padStart(2, '0');
+      const chaveAno = anoStr;
+      const chaveMes = `${anoStr}-${mesStr}`;
+
+      if (!grupoAtual || grupoAtual.ano !== chaveAno) {
+        grupoAtual = { ano: chaveAno, meses: [] };
+        grupos.push(grupoAtual);
+        anoAtual = chaveAno;
+        mesAtual = null;
+      }
+      if (!mesAtual || mesAtual.chave !== chaveMes) {
+        mesAtual = { chave: chaveMes, mes: mesStr, dias: [] };
+        grupoAtual.meses.push(mesAtual);
+      }
+      mesAtual.dias.push({ dia: String(dia).padStart(2, '0'), dataCompleta: data });
+    }
+    return grupos;
+  }
+
+  // ---------- RENDERIZAÇÃO PRINCIPAL ----------
+  function renderizarHistorico() {
+    const { alunos, stats, datasDisponiveis, presencasPorAluno, arquivosInfo } = dadosHistorico;
+    const container = document.getElementById('conteudo-historico');
+    const totalInfo = document.getElementById('total-info');
+
+    if (alunos.length === 0) {
+      container.innerHTML = `
+        <div class="no-data">
+          <span class="icon">📋</span>
+          <p>Nenhum aluno cadastrado nesta turma.</p>
+          <p style="font-size: 0.9em; color: #555;">Adicione alunos primeiro.</p>
+        </div>
+      `;
+      totalInfo.innerHTML = '';
+      return;
+    }
+
+    const alunosOrdenados = getAlunosOrdenados();
+
+    // Totais
+    const totalPresentes = alunos.reduce((acc, aluno) => {
+      const statsAluno = stats[aluno] || {};
+      return acc + (statsAluno.presencas || 0);
+    }, 0);
+    const totalFaltas = alunos.reduce((acc, aluno) => {
+      const statsAluno = stats[aluno] || {};
+      return acc + (statsAluno.faltas || 0);
+    }, 0);
+
+    totalInfo.innerHTML = `
+      <span>Alunos: <span>${alunos.length}</span></span>
+      <span>Aulas: <span>${datasDisponiveis.length}</span></span>
+      <span>Total de Presenças: <span>${totalPresentes}</span></span>
+      <span>Total de Faltas: <span>${totalFaltas}</span></span>
+      ${ordemAtual.tipo ? `<span style="color:#666;font-size:0.8em;">
+        Ordenado por: ${ordemAtual.tipo === 'nome' ? 'Nome' : 'Frequência'}
+        (${ordemAtual.direcao === 'asc' ? '↑' : '↓'})
+      </span>` : ''}
+    `;
+
+    // Agrupar datas
+    const grupos = agruparDatas(datasDisponiveis);
+
+    const repoPath = githubUrl.replace('https://github.com/', '').split('/blob')[0] || '';
+
+    // Construir cabeçalho com múltiplas linhas
+    let headerRows = [];
+
+    // Linha 1: Anos
+    let rowAno = `<tr>`;
+    rowAno += `<th class="col-nome" rowspan="3" onclick="ordenarPorNome()">
+      Aluno ${getSortIndicator()}
+    </th>`;
+    rowAno += `<th class="col-freq" rowspan="3" onclick="ordenarPorFrequencia()" style="--freq-col-left: 0px;">
+      freq(%) ${ordemAtual.tipo === 'frequencia' ? `<span class="sort-indicator">${ordemAtual.direcao === 'asc' ? '↑' : '↓'}</span>` : '<span class="sort-indicator inactive">↕</span>'}
+    </th>`;
+
+    for (const grupo of grupos) {
+      const totalDias = grupo.meses.reduce((acc, m) => acc + m.dias.length, 0);
+      rowAno += `<th class="header-ano" colspan="${totalDias}">${grupo.ano}</th>`;
+    }
+    rowAno += `<th class="header-mais" rowspan="3" onclick="abrirPopup()" title="Adicionar nova data">+</th>`;
+    rowAno += `</tr>`;
+    headerRows.push(rowAno);
+
+    // Linha 2: Meses
+    let rowMes = `<tr>`;
+    for (const grupo of grupos) {
+      for (const mes of grupo.meses) {
+        const colspan = mes.dias.length;
+        const nomeMes = new Date(2000, parseInt(mes.mes)-1, 1).toLocaleString('pt-br', { month: 'short' }).toUpperCase();
+        rowMes += `<th class="header-mes" colspan="${colspan}">${nomeMes}</th>`;
+      }
+    }
+    rowMes += `</tr>`;
+    headerRows.push(rowMes);
+
+    // Linha 3: Dias (inclinados em -45°)
+    let rowDia = `<tr>`;
+    for (const grupo of grupos) {
+      for (const mes of grupo.meses) {
+        for (const dia of mes.dias) {
+          const data = dia.dataCompleta;
+          const path = `${document.getElementById('tipo').value}/frequencia/presencas/${data}.txt`;
+          const dataUrl = `https://github.com/${repoPath}/blob/${BRANCH}/${path}`;
+          rowDia += `<th class="data-cell" onclick="window.open('${dataUrl}', '_blank')" title="Abrir presença no GitHub">
+              <span class="dia-texto">${dia.dia}</span>
+          </th>`;
+        }
+      }
+    }
+    rowDia += `</tr>`;
+    headerRows.push(rowDia);
+
+    // Corpo da tabela
+    let bodyRows = '';
+    for (const aluno of alunosOrdenados) {
+      const statsAluno = stats[aluno] || {};
+      const pct = statsAluno.pct_presenca || 0;
+      const canvasId = `freq-${aluno.replace(/\s/g, '_')}-${Date.now()}-${Math.random()}`;
+      const nomeAbreviado = formatarNome(aluno);
+
+      bodyRows += `<tr>`;
+      bodyRows += `<td class="col-nome">${nomeAbreviado}</td>`;
+      bodyRows += `<td class="col-freq" style="--freq-col-left: 0px;">
+        <div class="freq-grafico-container">
+          <canvas id="${canvasId}" width="40" height="40"></canvas>
+        </div>
+      </td>`;
+
+      for (const data of datasDisponiveis) {
+        const presente = presencasPorAluno[aluno]?.[data] || false;
+        const path = `${document.getElementById('tipo').value}/frequencia/presencas/${data}.txt`;
+        const dataUrl = `https://github.com/${repoPath}/blob/${BRANCH}/${path}`;
+        bodyRows += `<td class="data-cell" onclick="window.open('${dataUrl}', '_blank')" title="${aluno} - ${presente ? 'Presente' : 'Ausente'} em ${data} - Clique para ver no GitHub">
+          <span class="${presente ? 'bola-presenca' : 'bola-ausente'}"></span>
+        </td>`;
+      }
+
+      // Célula vazia para o botão + (já no cabeçalho)
+      bodyRows += `<td></td>`;
+      bodyRows += `</tr>`;
+
+      // Desenhar gráfico
+      setTimeout(() => {
+        desenharGrafico(canvasId, pct);
+      }, 20);
+    }
+
+    const html = `<table class="historico-table">
+      <thead>${headerRows.join('')}</thead>
+      <tbody>${bodyRows}</tbody>
+    </table>`;
+    container.innerHTML = html;
+  }
+
+  // ---------- CARREGAR DADOS ----------
+  async function carregarHistorico() {
+    const tipo = document.getElementById("tipo").value;
+    const container = document.getElementById("conteudo-historico");
+    const totalInfo = document.getElementById("total-info");
+
+    container.innerHTML = '<div class="loading">Carregando...</div>';
+    totalInfo.innerHTML = "";
+
+    try {
+      const respStats = await fetch(`/api/presenca/estatisticas?tipo=${tipo}`);
+      const jsonStats = await respStats.json();
+
+      const respAlunos = await fetch(`/api/alunos/carregar?tipo=${tipo}`);
+      const jsonAlunos = await respAlunos.json();
+
+      githubUrl = jsonAlunos.github_url || '';
+      if (githubUrl) {
+        const match = githubUrl.match(/\/blob\/([^\/]+)\//);
+        if (match) BRANCH = match[1];
+      }
+
+      const alunos = jsonAlunos.alunos || [];
+      const stats = jsonStats.stats || {};
+      const totalAulas = jsonStats.total_aulas || 0;
+
+      if (alunos.length === 0) {
+        container.innerHTML = `
+          <div class="no-data">
+            <span class="icon">📋</span>
+            <p>Nenhum aluno cadastrado nesta turma.</p>
+            <p style="font-size: 0.9em; color: #555;">Adicione alunos primeiro.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const respFiles = await fetch(`/api/presenca/listar_arquivos?tipo=${tipo}`);
+      let arquivos = [];
+      let arquivosInfo = {};
+      if (respFiles.ok) {
+        const jsonFiles = await respFiles.json();
+        arquivos = jsonFiles.arquivos || [];
+        for (const arq of arquivos) {
+          arquivosInfo[arq.data] = arq;
+        }
+      }
+
+      const presencasPorAluno = {};
+      const datasDisponiveis = [];
+
+      for (const aluno of alunos) {
+        presencasPorAluno[aluno] = {};
+      }
+
+      for (const arquivo of arquivos) {
+        const dataArquivo = arquivo.data;
+        datasDisponiveis.push(dataArquivo);
+
+        const respPresenca = await fetch(`/api/presenca/carregar?tipo=${tipo}&data=${dataArquivo}`);
+        const jsonPresenca = await respPresenca.json();
+
+        if (jsonPresenca.conteudo) {
+          const presentes = new Set(
+            jsonPresenca.conteudo.split("\n").map(n => n.trim()).filter(Boolean)
+          );
+          for (const aluno of alunos) {
+            presencasPorAluno[aluno][dataArquivo] = presentes.has(aluno);
+          }
+        }
+      }
+
+      datasDisponiveis.sort((a, b) => {
+        const [da, ma, aa] = a.split("-");
+        const [db, mb, ab] = b.split("-");
+        return `${aa}-${ma}-${da}`.localeCompare(`${ab}-${mb}-${db}`);
+      });
+
+      dadosHistorico = {
+        alunos,
+        stats,
+        datasDisponiveis,
+        presencasPorAluno,
+        totalAulas,
+        arquivosInfo
+      };
+
+      renderizarHistorico();
+
+    } catch (error) {
+      console.error("Erro ao carregar:", error);
+      container.innerHTML = `
+        <div class="no-data" style="color: #ff6b6b;">
+          <span class="icon">❌</span>
+          <p>Erro ao carregar: ${error.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  document.getElementById("tipo").addEventListener("change", () => {
+    ordemAtual = { tipo: null, direcao: null };
+    carregarHistorico();
+  });
+
+  carregarHistorico();
+</script>
+</body>
+</html>
