@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Labpel - Gerenciar Alunos</title>
+  <title>Labpel - Histórico</title>
+
   <style>
     * {
       margin: 0;
@@ -18,7 +19,6 @@
       color: #e0e0e0;
       min-height: 100vh;
       padding: 20px;
-      perspective: 1000px;
     }
 
     .container {
@@ -36,90 +36,119 @@
     }
 
     .controls {
-      background-color: #0a0a0a;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-top: 1px solid #333;
-      border-bottom: 1px solid #333;
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: auto auto 1fr;
       align-items: center;
+      gap: 14px 28px;
+      padding: 6px 0 18px;
+      margin-bottom: 18px;
+      border: none;
+      background: transparent;
     }
 
     .control-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
-    label {
-      font-weight: bold;
-      color: #cc6ce7;
+    .info-label {
+      color: #777;
+      font-size: 0.85em;
     }
 
+    .info-select,
     select {
-      background: #2c2c3e;
-      color: #e0e0e0;
-      border: 1px solid #cc6ce7;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 1em;
-      cursor: pointer;
-    }
-
-    select:hover {
-      background: #3c3c5e;
-    }
-
-    button {
-      background: linear-gradient(135deg, #2c2c3e 0%, #1e1e2e 100%);
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent !important;
       color: #cc6ce7;
-      border: 1px solid rgba(204, 108, 231, 0.3);
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 1em;
-      font-weight: bold;
+      border: none !important;
+      outline: none;
+      box-shadow: none !important;
+      padding: 3px 18px 3px 0;
+      border-radius: 0;
+      font-size: 0.9em;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.3s ease;
     }
 
-    button:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
-      border-color: #cc6ce7;
-      box-shadow: 0 4px 15px rgba(204, 108, 231, 0.3);
+    select:hover,
+    select:focus {
+      background: transparent !important;
+      color: #dd88ff;
+      border: none !important;
+      box-shadow: none !important;
     }
 
-    button:active {
-      color: #444;
+    .info-select option {
+      background: #111;
+      color: #e0e0e0;
     }
 
-    button.active {
-      background: linear-gradient(135deg, #3c3c5e 0%, #2e2e4e 100%);
-      border-color: #cc6ce7;
-      box-shadow: 0 0 20px rgba(204, 108, 231, 0.2);
+    .info-value {
+      color: #cc6ce7;
+      font-size: 0.9em;
+      font-weight: 500;
     }
 
-    .button-group {
+    .info-button {
+      background: transparent !important;
+      color: #d48cff;
+      border: 1px solid transparent !important;
+      outline: none;
+      box-shadow: none !important;
+      padding: 3px 4px;
+      border-radius: 0;
+      font-size: 0.82em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      text-decoration: underline;
+    }
+
+    .info-button:hover {
+      background: transparent !important;
+      color: #dd88ff;
+      border-color: transparent !important;
+      box-shadow: none !important;
+      transform: none;
+    }
+
+    .reload-btn {
+      padding: 3px 4px;
+      font-size: 0.82em;
+      border: 1px solid transparent !important;
+      color: #cc6ce7;
+      background: transparent !important;
+    }
+
+    .reload-btn:hover {
+      color: #dd88ff;
+      border-color: transparent !important;
+      box-shadow: none !important;
+      transform: none;
+    }
+
+    .total-info {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
       align-items: center;
-      margin-top: 5px;
+      gap: 22px;
+      flex-wrap: wrap;
+      padding: 2px 0 14px;
+      color: #888;
+      font-size: 0.9em;
     }
 
-    .github-btn {
-      background: linear-gradient(135deg, #24292e 0%, #1a1e22 100%);
-      border-color: #6a737d;
-      color: #f0f6fc;
-      margin-left: auto;
+    .total-info .info-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
     }
 
-    .github-btn:hover {
-      background: linear-gradient(135deg, #2f363d 0%, #24292e 100%);
-      border-color: #8b949e;
-      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+    .total-info .info-button {
+      margin-left: 2px;
     }
 
     .historico-container {
@@ -135,6 +164,7 @@
 
     .historico-table {
       width: max-content;
+      margin: 0 auto;
       border-collapse: collapse;
       table-layout: auto;
     }
@@ -145,10 +175,34 @@
       white-space: nowrap;
       border-left: 1px solid #333;
       border-right: 1px solid #333;
-      box-sizing: border-box;
     }
 
-    /* Dias inclinados em -45° */
+    .historico-table th {
+      background: #1a1a2e;
+      color: #cc6ce7;
+      padding: 6px 4px;
+      text-align: center;
+      border-bottom: 2px solid #cc6ce7;
+      font-size: 0.85em;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-mais {
+      background: #1a1a2e;
+      color: #cc6ce7;
+      font-size: 1.2em;
+      cursor: pointer;
+      text-align: center;
+      vertical-align: middle;
+      width: 30px;
+      min-width: 30px;
+      max-width: 30px;
+    }
+    .header-mais:hover { background: #2a2a4e; }
+
     .historico-table th.data-cell {
       width: 28px !important;
       min-width: 28px !important;
@@ -158,13 +212,14 @@
       background: #1a1a2e;
       border-bottom: 2px solid #cc6ce7;
       cursor: pointer;
-      transition: background 0.2s;
       text-align: center;
       vertical-align: bottom;
     }
-    .historico-table th.data-cell:hover {
+
+    .historico-table th.data-cell:hover,
+    .historico-table th.col-nome:hover,
+    .historico-table th.col-freq:hover {
       background: #2a2a4e;
-      color: #fff;
     }
 
     .historico-table th.data-cell .dia-texto {
@@ -172,10 +227,9 @@
       transform: rotate(-45deg);
       transform-origin: center;
       white-space: nowrap;
-      font-size: 1em;   /* AUMENTADO PARA 1em */
+      font-size: 1em;
     }
 
-    /* Coluna do nome */
     .historico-table .col-nome {
       text-align: left;
       font-weight: bold;
@@ -188,16 +242,12 @@
       left: 0;
       z-index: 5;
     }
+
     .historico-table th.col-nome {
       background: #1a1a2e;
-      position: sticky;
-      left: 0;
       z-index: 11;
       cursor: pointer;
       user-select: none;
-    }
-    .historico-table th.col-nome:hover {
-      background: #2a2a4e;
     }
 
     .historico-table .col-freq {
@@ -210,16 +260,12 @@
       min-width: 70px;
       width: 70px;
     }
+
     .historico-table th.col-freq {
       background: #1a1a2e;
-      position: sticky;
-      left: var(--freq-col-left, 0px);
       z-index: 11;
       cursor: pointer;
       user-select: none;
-    }
-    .historico-table th.col-freq:hover {
-      background: #2a2a4e;
     }
 
     .data-cell {
@@ -238,89 +284,39 @@
       border-bottom: 1px solid #222;
       cursor: pointer;
     }
+
     .historico-table tr:hover td.data-cell {
       background: rgba(204, 108, 231, 0.05);
     }
 
-    .header-mais {
-      background: #1a1a2e;
-      color: #cc6ce7;
-      font-size: 1.2em;
-      cursor: pointer;
-      text-align: center;
-      vertical-align: middle;
-      width: 30px;
-      min-width: 30px;
-      max-width: 30px;
-    }
-    .header-mais:hover {
-      background: #2a2a4e;
-    }
-
-    .historico-table th {
-      background: #1a1a2e;
-      color: #cc6ce7;
-      padding: 6px 4px;
-      text-align: center;
-      border-bottom: 2px solid #cc6ce7;
-      font-size: 0.85em;
-      white-space: nowrap;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .historico-table th.header-ano {
-      background: #1a1a2e;
-      color: #cc6ce7;
-      font-size: 0.9em;
-      border-bottom: 1px solid #555;
-    }
-    .historico-table th.header-mes {
-      background: #222244;
-      color: #cc6ce7;
-      font-size: 0.8em;
-      border-bottom: 1px solid #444;
-    }
-
-    .historico-table td {
-      padding: 4px 2px;
-      text-align: center;
-      border-bottom: 1px solid #222;
-      font-size: 0.9em;
-    }
-
-    .bola-presenca {
+    .bola-presenca,
+    .bola-ausente,
+    .bola-cinza {
       display: inline-block;
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background-color: #cc6ce7;
-      box-shadow: 0 0 10px rgba(204, 108, 231, 0.4);
       transition: all 0.3s ease;
     }
+
+    .bola-presenca {
+      background-color: #cc6ce7;
+      box-shadow: 0 0 10px rgba(204, 108, 231, 0.4);
+    }
+
     .bola-presenca:hover {
       transform: scale(1.2);
       box-shadow: 0 0 20px rgba(204, 108, 231, 0.6);
     }
 
     .bola-ausente {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
       background-color: #1a1a1a;
       border: 2px solid #777;
-      transition: all 0.3s ease;
     }
 
     .bola-cinza {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
       background-color: #555;
       border: 1px solid #666;
-      transition: all 0.3s ease;
       cursor: pointer;
     }
 
@@ -332,20 +328,6 @@
 
     .freq-grafico-container canvas {
       display: block;
-    }
-
-    .total-info {
-      display: flex;
-      gap: 30px;
-      flex-wrap: wrap;
-      padding: 10px 0;
-      color: #888;
-      font-size: 0.9em;
-    }
-
-    .total-info span {
-      color: #cc6ce7;
-      font-weight: bold;
     }
 
     .no-data {
@@ -390,10 +372,6 @@
       color: #cc6ce7;
     }
 
-    .sort-indicator.inactive {
-      opacity: 0.3;
-    }
-
     .status-texto {
       display: flex;
       gap: 20px;
@@ -435,8 +413,7 @@
     .popup-overlay {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       background: rgba(0,0,0,0.7);
@@ -444,9 +421,9 @@
       justify-content: center;
       align-items: center;
     }
-    .popup-overlay.active {
-      display: flex;
-    }
+
+    .popup-overlay.active { display: flex; }
+
     .popup-box {
       background: #1a1a2e;
       border: 1px solid #cc6ce7;
@@ -457,10 +434,9 @@
       box-shadow: 0 0 40px rgba(204,108,231,0.3);
       text-align: center;
     }
-    .popup-box h3 {
-      color: #cc6ce7;
-      margin-bottom: 20px;
-    }
+
+    .popup-box h3 { color: #cc6ce7; margin-bottom: 20px; }
+
     .popup-box input[type="date"] {
       background: #2c2c3e;
       color: #e0e0e0;
@@ -471,16 +447,15 @@
       width: 100%;
       margin-bottom: 20px;
     }
-    .popup-box .popup-buttons {
+
+    .popup-buttons {
       display: flex;
       gap: 10px;
       justify-content: center;
     }
-    .popup-box .popup-buttons button {
-      padding: 8px 20px;
-    }
 
-    /* ===== RESPONSIVO ===== */
+    .popup-buttons button { padding: 8px 20px; }
+
     @media (max-width: 768px) {
       body {
         padding: 0;
@@ -492,17 +467,23 @@
         padding: 0;
       }
 
-      .controls {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 15px;
+      h1 {
+        padding: 15px 15px 0;
       }
-      .control-group {
-        justify-content: space-between;
+
+      .total-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 18px;
+        padding: 0 15px 14px;
       }
-      .github-btn {
-        margin-left: 0;
-        width: 100%;
+
+      .total-info .info-item {
+        min-width: 0;
+      }
+
+      .total-info .info-button {
+        justify-self: start;
       }
 
       .historico-container {
@@ -518,40 +499,32 @@
         padding: 4px 2px;
         font-size: 0.75em;
       }
+
       .bola-presenca,
       .bola-ausente,
       .bola-cinza {
         width: 14px;
         height: 14px;
       }
+
       .data-cell {
         width: 16px !important;
         min-width: 16px !important;
         max-width: 16px !important;
-        padding: 1px 0 !important;
       }
+
       .historico-table th.data-cell {
         width: 22px !important;
         min-width: 22px !important;
         max-width: 22px !important;
         height: 35px;
       }
-      .historico-table th.data-cell .dia-texto {
-        font-size: 1em;   /* AUMENTADO TAMBÉM AQUI */
-      }
+
       .historico-table .col-freq {
         min-width: 50px;
         width: 50px;
       }
-      .historico-table th.col-freq {
-        min-width: 50px;
-        width: 50px;
-      }
-      .total-info {
-        gap: 15px;
-        font-size: 0.8em;
-        padding: 10px 15px;
-      }
+
       .status-texto {
         padding: 10px 15px;
       }
@@ -564,34 +537,31 @@
         width: 12px;
         height: 12px;
       }
+
       .data-cell {
         width: 14px !important;
         min-width: 14px !important;
         max-width: 14px !important;
-        padding: 1px 0 !important;
       }
+
       .historico-table th.data-cell {
         width: 18px !important;
         min-width: 18px !important;
         max-width: 18px !important;
         height: 30px;
       }
-      .historico-table th.data-cell .dia-texto {
-        font-size: 1em;   /* AUMENTADO TAMBÉM AQUI */
-      }
+
       .historico-table th,
       .historico-table td {
         padding: 2px 1px;
         font-size: 0.65em;
       }
+
       .historico-table .col-freq {
         min-width: 40px;
         width: 40px;
       }
-      .historico-table th.col-freq {
-        min-width: 40px;
-        width: 40px;
-      }
+
       .status-texto .bola-pequena {
         width: 10px;
         height: 10px;
@@ -599,25 +569,25 @@
     }
   </style>
 </head>
+
 <body>
 <div class="container">
-  <h1>Gerenciar Alunos</h1>
+  <h1>Histórico</h1>
 
-  <div class="controls">
-    <div class="control-group">
-      <label>Turma:</label>
-      <select id="tipo">
-        <option value="iniciacao">Iniciação</option>
-        <option value="aprimoramento">Aprimoramento</option>
-      </select>
-    </div>
-    <button onclick="abrirGitHub()" class="github-btn">Gerenciar alunos no GitHub</button>
+  <div id="total-info" class="total-info">
+    <div class="info-item"><span class="info-label">Turma:</span><select id="tipo" class="info-select"><option value="">Selecione...</option><option value="iniciacao">Iniciação</option><option value="aprimoramento">Aprimoramento</option></select></div>
+    <div class="info-item"><span class="info-label">Período:</span><select id="periodo" class="info-select"><option value="all">Qualquer período</option></select></div>
+    <div class="info-item"><span class="info-label">Aulas:</span><span id="quantidade-aulas" class="info-value">0</span></div>
+    <button onclick="abrirGitHubAlunos()" class="info-button">gerenciar alunos</button>
+    <button onclick="abrirGitHubPeriodos()" class="info-button">gerenciar períodos</button>
+    <button onclick="carregarHistorico()" class="info-button">recarregar</button>
   </div>
 
-  <div id="total-info" class="total-info"></div>
-
   <div class="historico-container" id="historico-container">
-    <div id="conteudo-historico" class="loading">Carregando...</div>
+    <div id="conteudo-historico" class="no-data">
+      <span class="icon">📋</span>
+      Selecione uma turma e um período.
+    </div>
   </div>
 
   <div class="status-texto" id="legenda">
@@ -625,6 +595,7 @@
       <span class="bola-pequena presente"></span>
       Presente
     </span>
+
     <span class="legenda-item">
       <span class="bola-pequena ausente"></span>
       Ausente
@@ -647,26 +618,490 @@
 <script>
   let dadosHistorico = {
     alunos: [],
-    stats: {},
+    registros: [],
     datasDisponiveis: [],
     presencasPorAluno: {},
-    totalAulas: 0,
-    arquivosInfo: {}
+    totalAulas: 0
   };
+
+  let periodos = [];
 
   let ordemAtual = {
     tipo: null,
     direcao: null
   };
 
+  let githubPeriodosUrl = '';
   let githubUrl = '';
-  let BRANCH = 'main';
 
-  // ---------- POPUP ----------
+  const meses = [
+    'jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+    'jul', 'ago', 'set', 'out', 'nov', 'dez'
+  ];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    document.getElementById('tipo').addEventListener('change', async () => {
+      ordemAtual = { tipo: null, direcao: null };
+      const tipo = document.getElementById('tipo').value;
+
+      if (!tipo) {
+        githubUrl = '';
+        mostrarMensagem('Selecione uma turma para visualizar o histórico.');
+        atualizarTotalInfo();
+        return;
+      }
+
+      await carregarHistorico();
+      await carregarGitHubAlunos();
+    });
+
+    document.getElementById('periodo').addEventListener('change', async () => {
+      ordemAtual = { tipo: null, direcao: null };
+      const tipo = document.getElementById('tipo').value;
+
+      if (!tipo) {
+        mostrarMensagem('Período selecionado. Agora selecione uma turma para visualizar o histórico.');
+        atualizarTotalInfo();
+        return;
+      }
+
+      await carregarHistorico();
+    });
+
+    await carregarPeriodos();
+  });
+
+  async function carregarPeriodos() {
+    const periodoSelect = document.getElementById('periodo');
+
+    try {
+      const resposta = await fetch('/api/periodos');
+      const json = await resposta.json();
+
+      if (!resposta.ok || !json.ok) {
+        throw new Error(json.erro?.message || json.erro || 'Não foi possível carregar os períodos.');
+      }
+
+      periodos = json.periodos || [];
+      githubPeriodosUrl = json.github_url || '';
+
+      periodoSelect.innerHTML = '<option value="all" selected>Qualquer período</option>';
+      periodos.forEach((periodo, index) => {
+        const option = document.createElement('option');
+        option.value = String(index);
+        option.textContent = periodo.rotulo;
+        periodoSelect.appendChild(option);
+      });
+      periodoSelect.disabled = false;
+    } catch (error) {
+      console.error(error);
+      periodoSelect.innerHTML = '<option value="all" selected>Qualquer período</option>';
+      periodoSelect.disabled = false;
+      mostrarMensagem('Não foi possível carregar os períodos.');
+    }
+  }
+
+  async function carregarGitHubAlunos() {
+    const tipo = document.getElementById('tipo').value;
+    if (!tipo) { githubUrl = ''; return; }
+
+    try {
+      const resposta = await fetch(`/api/alunos/carregar?tipo=${encodeURIComponent(tipo)}`);
+      const json = await resposta.json();
+      githubUrl = json.github_url || '';
+    } catch (error) {
+      console.error(error);
+      githubUrl = '';
+    }
+  }
+
+  function abrirGitHubAlunos() {
+    if (githubUrl && githubUrl !== '#') {
+      window.open(githubUrl, '_blank');
+    } else {
+      alert('Selecione uma turma para abrir o arquivo de alunos no GitHub.');
+    }
+  }
+
+  // Mantido para compatibilidade caso outra parte da página use esta função.
+  function abrirGitHubPeriodos() {
+    if (githubPeriodosUrl) {
+      window.open(githubPeriodosUrl, '_blank');
+    }
+  }
+
+  async function recarregarTabela() {
+    const tipo = document.getElementById('tipo').value;
+    if (!tipo) {
+      mostrarMensagem('Selecione uma turma.');
+      return;
+    }
+    await carregarHistorico();
+  }
+
+  async function carregarHistorico() {
+    const tipo = document.getElementById('tipo').value;
+    if (!tipo) {
+      mostrarMensagem('Selecione uma turma para visualizar o histórico.');
+      atualizarTotalInfo();
+      return;
+    }
+
+    const periodo = obterPeriodoSelecionado();
+    mostrarLoading();
+
+    try {
+      const resposta = await fetch(`/api/presenca/historico?tipo=${encodeURIComponent(tipo)}`);
+      const json = await resposta.json();
+
+      if (!resposta.ok || !json.ok) {
+        throw new Error(json.error || json.erro || 'Erro ao carregar histórico.');
+      }
+
+      dadosHistorico = json;
+      await carregarGitHubAlunos();
+      renderizarHistorico(periodo);
+    } catch (error) {
+      console.error(error);
+      mostrarMensagem('Erro ao carregar o histórico: ' + error.message);
+      atualizarTotalInfo();
+    }
+  }
+
+  function dataParaDate(data) {
+    const partes = data.split('-');
+
+    if (partes.length !== 3) {
+      return null;
+    }
+
+    return new Date(
+      Number(partes[0]),
+      Number(partes[1]) - 1,
+      Number(partes[2])
+    );
+  }
+
+  function dataBrParaDate(data) {
+    const partes = data.split('-');
+
+    if (partes.length !== 3) {
+      return null;
+    }
+
+    let ano = Number(partes[2]);
+
+    if (ano < 70) {
+      ano += 2000;
+    } else {
+      ano += 1900;
+    }
+
+    return new Date(
+      ano,
+      Number(partes[1]) - 1,
+      Number(partes[0])
+    );
+  }
+
+  function formatarDiaCabecalho(data) {
+    const date = dataBrParaDate(data);
+
+    if (!date) {
+      return data;
+    }
+
+    return String(date.getDate()).padStart(2, '0');
+  }
+
+  function getSortIndicator(tipo) {
+    if (ordemAtual.tipo !== tipo) {
+      return '';
+    }
+
+    const dir = ordemAtual.direcao === 'asc' ? '↑' : '↓';
+
+    return `<span class="sort-indicator">${dir}</span>`;
+  }
+
+  function ordenarPorNome(periodo) {
+    if (ordemAtual.tipo === 'nome') {
+      ordemAtual.direcao =
+        ordemAtual.direcao === 'asc' ? 'desc' : 'asc';
+    } else {
+      ordemAtual.tipo = 'nome';
+      ordemAtual.direcao = 'asc';
+    }
+
+    renderizarHistorico(periodo);
+  }
+
+  function ordenarPorFrequencia(periodo) {
+    if (ordemAtual.tipo === 'frequencia') {
+      ordemAtual.direcao =
+        ordemAtual.direcao === 'asc' ? 'desc' : 'asc';
+    } else {
+      ordemAtual.tipo = 'frequencia';
+      ordemAtual.direcao = 'desc';
+    }
+
+    renderizarHistorico(periodo);
+  }
+
+  function obterRegistrosDoPeriodo(periodo) {
+    const registros = [...(dadosHistorico.registros || [])];
+
+    if (!periodo) {
+      return registros.sort((a, b) => a.data.localeCompare(b.data));
+    }
+
+    const inicio = dataParaDate(periodo.inicio_iso);
+    const fim = dataParaDate(periodo.fim_iso);
+
+    if (!inicio || !fim) return [];
+
+    return registros
+      .filter(registro => {
+        const data = dataBrParaDate(registro.data_br);
+        return data && data >= inicio && data <= fim;
+      })
+      .sort((a, b) => a.data.localeCompare(b.data));
+  }
+
+  function obterDadosAlunos(periodo, registros) {
+    const alunos = [...(dadosHistorico.alunos || [])];
+
+    const dados = alunos.map(nome => {
+      let presencas = 0;
+
+      registros.forEach(registro => {
+        if (
+          (registro.presentes || []).includes(nome)
+        ) {
+          presencas++;
+        }
+      });
+
+      const faltas = registros.length - presencas;
+
+      const pct = registros.length
+        ? Math.round((presencas / registros.length) * 100)
+        : 0;
+
+      return {
+        nome,
+        presencas,
+        faltas,
+        pct
+      };
+    });
+
+    if (ordemAtual.tipo === 'nome') {
+      dados.sort((a, b) => {
+        const resultado =
+          a.nome.localeCompare(
+            b.nome,
+            'pt-BR',
+            { sensitivity: 'base' }
+          );
+
+        return ordemAtual.direcao === 'asc'
+          ? resultado
+          : -resultado;
+      });
+    }
+
+    if (ordemAtual.tipo === 'frequencia') {
+      dados.sort((a, b) => {
+        const resultado = a.pct - b.pct;
+
+        if (resultado !== 0) {
+          return ordemAtual.direcao === 'asc'
+            ? resultado
+            : -resultado;
+        }
+
+        return a.nome.localeCompare(
+          b.nome,
+          'pt-BR',
+          { sensitivity: 'base' }
+        );
+      });
+    }
+
+    return dados;
+  }
+
+  function renderizarHistorico(periodo) {
+    const registros = obterRegistrosDoPeriodo(periodo);
+    const alunos = obterDadosAlunos(periodo, registros);
+    const container = document.getElementById('conteudo-historico');
+
+    atualizarTotalInfo(registros, periodo);
+
+    if (alunos.length === 0) {
+      container.innerHTML = `
+        <div class="no-data">
+          <span class="icon">📋</span>
+          Nenhum aluno cadastrado nesta turma.
+        </div>
+      `;
+      return;
+    }
+
+    if (registros.length === 0) {
+      container.innerHTML = `
+        <div class="no-data">
+          <span class="icon">📅</span>
+          Nenhuma aula encontrada dentro do período selecionado.
+        </div>
+      `;
+      return;
+    }
+
+    let html = `
+      <table class="historico-table">
+        <thead>
+          <tr>
+            <th
+              class="col-nome"
+              onclick="ordenarPorNome(obterPeriodoSelecionado())"
+            >
+              Nome${getSortIndicator('nome')}
+            </th>
+
+            <th
+              class="col-freq"
+              onclick="ordenarPorFrequencia(obterPeriodoSelecionado())"
+            >
+              Freq.${getSortIndicator('frequencia')}
+            </th>
+    `;
+
+    registros.forEach(registro => {
+      html += `
+        <th class="data-cell" title="${registro.data_br}">
+          <span class="dia-texto">
+            ${formatarDiaCabecalho(registro.data_br)}
+          </span>
+        </th>
+      `;
+    });
+
+    html += `
+      <th class="header-mais" onclick="abrirPopup()" title="Criar frequência">+</th>
+    `;
+
+    html += `
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    alunos.forEach((aluno, indice) => {
+      const canvasId = `freq-${indice}`;
+
+      html += `
+        <tr>
+          <td
+            class="col-nome"
+            title="${escapeHtml(aluno.nome)}"
+          >
+            ${escapeHtml(formatarNome(aluno.nome))}
+          </td>
+
+          <td class="col-freq">
+            <div class="freq-grafico-container">
+              <canvas
+                id="${canvasId}"
+                width="40"
+                height="40"
+              ></canvas>
+            </div>
+          </td>
+      `;
+
+      registros.forEach(registro => {
+        const presente =
+          (registro.presentes || []).includes(aluno.nome);
+
+        html += `
+          <td class="data-cell" title="${presente ? 'Presente' : 'Ausente'}">
+            <span class="${presente ? 'bola-presenca' : 'bola-ausente'}"></span>
+          </td>
+        `;
+      });
+
+      html += '<td class="header-mais" style="visibility:hidden">+</td>';
+      html += '</tr>';
+    });
+
+    html += `
+        </tbody>
+      </table>
+    `;
+
+    container.innerHTML = html;
+
+    // Faz a coluna de frequência começar exatamente depois da coluna de nome.
+    requestAnimationFrame(() => {
+      const nomeCabecalho =
+        document.querySelector('.historico-table th.col-nome');
+
+      if (nomeCabecalho) {
+        const largura = nomeCabecalho.getBoundingClientRect().width;
+
+        document.documentElement.style.setProperty(
+          '--freq-col-left',
+          `${largura}px`
+        );
+      }
+
+      alunos.forEach((aluno, indice) => {
+        desenharGrafico(
+          `freq-${indice}`,
+          aluno.pct
+        );
+      });
+    });
+  }
+
+  function obterPeriodoSelecionado() {
+    const valor = document.getElementById('periodo').value;
+    if (valor === '' || valor === 'all') return null;
+    return periodos[Number(valor)] || null;
+  }
+
+  function atualizarTotalInfo(registros = [], periodo = null) {
+    const quantidade = document.getElementById("quantidade-aulas");
+    if (quantidade) quantidade.textContent = registros.length;
+  }
+
+  function mostrarLoading() {
+    document.getElementById('conteudo-historico').innerHTML = `
+      <div class="loading">
+        Carregando...
+      </div>
+    `;
+  }
+
+  function mostrarMensagem(mensagem) {
+    document.getElementById('conteudo-historico').innerHTML = `
+      <div class="no-data">
+        <span class="icon">📋</span>
+        ${escapeHtml(mensagem)}
+      </div>
+    `;
+  }
+
   function abrirPopup() {
+    const tipo = document.getElementById('tipo').value;
+    if (!tipo) {
+      alert('Selecione uma turma antes de criar uma frequência.');
+      return;
+    }
     document.getElementById('popup-calendario').classList.add('active');
-    const hoje = new Date().toISOString().split('T')[0];
-    document.getElementById('input-data').value = hoje;
+    document.getElementById('input-data').value = new Date().toISOString().split('T')[0];
   }
 
   function fecharPopup() {
@@ -675,15 +1110,15 @@
 
   async function criarFrequencia() {
     const data = document.getElementById('input-data').value;
-    if (!data) {
-      alert('Selecione uma data.');
-      return;
-    }
+    const tipo = document.getElementById('tipo').value;
+
+    if (!tipo) { alert('Selecione uma turma.'); return; }
+    if (!data) { alert('Selecione uma data.'); return; }
+
     const partes = data.split('-');
     const dataFormatada = `${partes[2]}-${partes[1]}-${partes[0].slice(-2)}`;
+    const alunos = dadosHistorico.alunos || [];
 
-    const tipo = document.getElementById('tipo').value;
-    const alunos = dadosHistorico.alunos;
     if (alunos.length === 0) {
       alert('Nenhum aluno cadastrado.');
       fecharPopup();
@@ -691,55 +1126,50 @@
     }
 
     try {
-      const respCarregar = await fetch(`/api/presenca/carregar?tipo=${tipo}&data=${dataFormatada}`);
+      const respCarregar = await fetch(`/api/presenca/carregar?tipo=${encodeURIComponent(tipo)}&data=${encodeURIComponent(dataFormatada)}`);
       const jsonCarregar = await respCarregar.json();
 
       const repoPath = githubUrl.replace('https://github.com/', '').split('/blob')[0] || '';
       const path = `${tipo}/frequencia/presencas/${dataFormatada}.txt`;
-      const githubFileUrl = `https://github.com/${repoPath}/blob/${BRANCH}/${path}`;
+      const githubFileUrl = `https://github.com/${repoPath}/blob/main/${path}`;
 
       if (jsonCarregar.conteudo || jsonCarregar.sha) {
-        window.open(githubFileUrl, '_blank');
+        window.open(jsonCarregar.github_url || githubFileUrl, '_blank');
         fecharPopup();
         return;
       }
 
-      const conteudo = alunos.join('\n');
       const respSalvar = await fetch('/api/presenca/salvar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tipo: tipo,
-          data: dataFormatada,
-          conteudo: conteudo,
-          sha: null
-        })
+        body: JSON.stringify({ tipo, data: dataFormatada, conteudo: alunos.join('\n'), sha: null })
       });
 
       const jsonSalvar = await respSalvar.json();
-
-      if (jsonSalvar.ok) {
-        if (jsonSalvar.github_url) {
-          window.open(jsonSalvar.github_url, '_blank');
-        } else {
-          window.open(githubFileUrl, '_blank');
-        }
-        fecharPopup();
-        setTimeout(() => carregarHistorico(), 500);
-      } else {
+      if (!jsonSalvar.ok) {
         const mensagem = jsonSalvar.github?.message || jsonSalvar.error || 'Erro desconhecido';
         alert('Erro ao criar frequência: ' + mensagem);
+        return;
       }
+
+      window.open(jsonSalvar.github_url || githubFileUrl, '_blank');
+      fecharPopup();
+      setTimeout(() => carregarHistorico(), 500);
     } catch (error) {
       alert('Erro: ' + error.message);
     }
   }
 
-  // ---------- FORMATAÇÃO DE NOME ----------
   function formatarNome(nomeCompleto) {
     const partes = nomeCompleto.trim().split(/\s+/);
-    if (partes.length === 0) return '';
-    if (partes.length === 1) return partes[0];
+
+    if (partes.length === 0) {
+      return '';
+    }
+
+    if (partes.length === 1) {
+      return partes[0];
+    }
 
     const primeiro = partes[0];
     const segundo = partes[1];
@@ -748,20 +1178,33 @@
     if (segundo.length <= 2) {
       if (terceiro) {
         return `${primeiro} ${segundo} ${terceiro.charAt(0).toUpperCase()}.`;
-      } else {
-        return `${primeiro} ${segundo}`;
       }
-    } else {
-      return `${primeiro} ${segundo.charAt(0).toUpperCase()}.`;
+
+      return `${primeiro} ${segundo}`;
     }
+
+    return `${primeiro} ${segundo.charAt(0).toUpperCase()}.`;
   }
 
-  // ---------- GRÁFICO ----------
+  function escapeHtml(texto) {
+    return String(texto)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
   function desenharGrafico(canvasId, porcentagemPresenca) {
     const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
+
+    if (!canvas) {
+      return;
+    }
+
     const ctx = canvas.getContext('2d');
     const tamanho = 40;
+
     canvas.width = tamanho;
     canvas.height = tamanho;
 
@@ -772,28 +1215,59 @@
     ctx.clearRect(0, 0, tamanho, tamanho);
 
     ctx.beginPath();
-    ctx.arc(centroX, centroY, raio, 0, 2 * Math.PI);
+    ctx.arc(
+      centroX,
+      centroY,
+      raio,
+      0,
+      2 * Math.PI
+    );
+
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 2;
     ctx.stroke();
 
     if (porcentagemPresenca > 0) {
-      const anguloFinal = (porcentagemPresenca / 100) * 2 * Math.PI;
+      const anguloFinal =
+        (porcentagemPresenca / 100) * 2 * Math.PI;
+
       ctx.beginPath();
       ctx.moveTo(centroX, centroY);
-      ctx.arc(centroX, centroY, raio, -Math.PI / 2, -Math.PI / 2 + anguloFinal);
+
+      ctx.arc(
+        centroX,
+        centroY,
+        raio,
+        -Math.PI / 2,
+        -Math.PI / 2 + anguloFinal
+      );
+
       ctx.closePath();
       ctx.fillStyle = '#cc6ce7';
       ctx.fill();
     }
 
     ctx.beginPath();
-    ctx.arc(centroX, centroY, raio - 8, 0, 2 * Math.PI);
+    ctx.arc(
+      centroX,
+      centroY,
+      raio - 8,
+      0,
+      2 * Math.PI
+    );
+
     ctx.fillStyle = '#0a0a0a';
     ctx.fill();
 
     ctx.beginPath();
-    ctx.arc(centroX, centroY, raio - 8, 0, 2 * Math.PI);
+    ctx.arc(
+      centroX,
+      centroY,
+      raio - 8,
+      0,
+      2 * Math.PI
+    );
+
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 1;
     ctx.stroke();
@@ -802,337 +1276,13 @@
     ctx.fillStyle = '#cc6ce7';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`${porcentagemPresenca}`, centroX, centroY);
+
+    ctx.fillText(
+      `${porcentagemPresenca}`,
+      centroX,
+      centroY
+    );
   }
-
-  // ---------- ORDENAÇÃO ----------
-  function getSortIndicator() {
-    if (ordemAtual.tipo === null) return '';
-    const dir = ordemAtual.direcao === 'asc' ? '↑' : '↓';
-    return `<span class="sort-indicator">${dir}</span>`;
-  }
-
-  function ordenarPorNome() {
-    if (ordemAtual.tipo === 'nome') {
-      ordemAtual.direcao = ordemAtual.direcao === 'asc' ? 'desc' : 'asc';
-    } else {
-      ordemAtual.tipo = 'nome';
-      ordemAtual.direcao = 'asc';
-    }
-    renderizarHistorico();
-  }
-
-  function ordenarPorFrequencia() {
-    if (ordemAtual.tipo === 'frequencia') {
-      ordemAtual.direcao = ordemAtual.direcao === 'asc' ? 'desc' : 'asc';
-    } else {
-      ordemAtual.tipo = 'frequencia';
-      ordemAtual.direcao = 'desc';
-    }
-    renderizarHistorico();
-  }
-
-  function abrirGitHub() {
-    if (githubUrl && githubUrl !== '#') {
-      window.open(githubUrl, '_blank');
-    } else {
-      alert('Link do GitHub não disponível para esta turma.');
-    }
-  }
-
-  function getAlunosOrdenados() {
-    const { alunos, stats } = dadosHistorico;
-    if (ordemAtual.tipo === null) {
-      return [...alunos];
-    }
-    const sorted = [...alunos];
-    if (ordemAtual.tipo === 'nome') {
-      sorted.sort((a, b) => {
-        const comp = a.localeCompare(b, 'pt-br');
-        return ordemAtual.direcao === 'asc' ? comp : -comp;
-      });
-    } else if (ordemAtual.tipo === 'frequencia') {
-      sorted.sort((a, b) => {
-        const freqA = stats[a]?.pct_presenca || 0;
-        const freqB = stats[b]?.pct_presenca || 0;
-        return ordemAtual.direcao === 'desc' ? freqB - freqA : freqA - freqB;
-      });
-    }
-    return sorted;
-  }
-
-  // ---------- AGRUPAMENTO DE DATAS ----------
-  function agruparDatas(datas) {
-    const grupos = [];
-    let anoAtual = null;
-    let mesAtual = null;
-    let grupoAtual = null;
-
-    for (const data of datas) {
-      const [dia, mes, ano] = data.split('-').map(Number);
-      const anoStr = String(ano).padStart(2, '0');
-      const mesStr = String(mes).padStart(2, '0');
-      const chaveAno = anoStr;
-      const chaveMes = `${anoStr}-${mesStr}`;
-
-      if (!grupoAtual || grupoAtual.ano !== chaveAno) {
-        grupoAtual = { ano: chaveAno, meses: [] };
-        grupos.push(grupoAtual);
-        anoAtual = chaveAno;
-        mesAtual = null;
-      }
-      if (!mesAtual || mesAtual.chave !== chaveMes) {
-        mesAtual = { chave: chaveMes, mes: mesStr, dias: [] };
-        grupoAtual.meses.push(mesAtual);
-      }
-      mesAtual.dias.push({ dia: String(dia).padStart(2, '0'), dataCompleta: data });
-    }
-    return grupos;
-  }
-
-  // ---------- RENDERIZAÇÃO PRINCIPAL ----------
-  function renderizarHistorico() {
-    const { alunos, stats, datasDisponiveis, presencasPorAluno, arquivosInfo } = dadosHistorico;
-    const container = document.getElementById('conteudo-historico');
-    const totalInfo = document.getElementById('total-info');
-
-    if (alunos.length === 0) {
-      container.innerHTML = `
-        <div class="no-data">
-          <span class="icon">📋</span>
-          <p>Nenhum aluno cadastrado nesta turma.</p>
-          <p style="font-size: 0.9em; color: #555;">Adicione alunos primeiro.</p>
-        </div>
-      `;
-      totalInfo.innerHTML = '';
-      return;
-    }
-
-    const alunosOrdenados = getAlunosOrdenados();
-
-    // Totais
-    const totalPresentes = alunos.reduce((acc, aluno) => {
-      const statsAluno = stats[aluno] || {};
-      return acc + (statsAluno.presencas || 0);
-    }, 0);
-    const totalFaltas = alunos.reduce((acc, aluno) => {
-      const statsAluno = stats[aluno] || {};
-      return acc + (statsAluno.faltas || 0);
-    }, 0);
-
-    totalInfo.innerHTML = `
-      <span>Alunos: <span>${alunos.length}</span></span>
-      <span>Aulas: <span>${datasDisponiveis.length}</span></span>
-      <span>Total de Presenças: <span>${totalPresentes}</span></span>
-      <span>Total de Faltas: <span>${totalFaltas}</span></span>
-      ${ordemAtual.tipo ? `<span style="color:#666;font-size:0.8em;">
-        Ordenado por: ${ordemAtual.tipo === 'nome' ? 'Nome' : 'Frequência'}
-        (${ordemAtual.direcao === 'asc' ? '↑' : '↓'})
-      </span>` : ''}
-    `;
-
-    // Agrupar datas
-    const grupos = agruparDatas(datasDisponiveis);
-
-    const repoPath = githubUrl.replace('https://github.com/', '').split('/blob')[0] || '';
-
-    // Construir cabeçalho com múltiplas linhas
-    let headerRows = [];
-
-    // Linha 1: Anos
-    let rowAno = `<tr>`;
-    rowAno += `<th class="col-nome" rowspan="3" onclick="ordenarPorNome()">
-      Aluno ${getSortIndicator()}
-    </th>`;
-    rowAno += `<th class="col-freq" rowspan="3" onclick="ordenarPorFrequencia()" style="--freq-col-left: 0px;">
-      freq(%) ${ordemAtual.tipo === 'frequencia' ? `<span class="sort-indicator">${ordemAtual.direcao === 'asc' ? '↑' : '↓'}</span>` : '<span class="sort-indicator inactive">↕</span>'}
-    </th>`;
-
-    for (const grupo of grupos) {
-      const totalDias = grupo.meses.reduce((acc, m) => acc + m.dias.length, 0);
-      rowAno += `<th class="header-ano" colspan="${totalDias}">${grupo.ano}</th>`;
-    }
-    rowAno += `<th class="header-mais" rowspan="3" onclick="abrirPopup()" title="Adicionar nova data">+</th>`;
-    rowAno += `</tr>`;
-    headerRows.push(rowAno);
-
-    // Linha 2: Meses
-    let rowMes = `<tr>`;
-    for (const grupo of grupos) {
-      for (const mes of grupo.meses) {
-        const colspan = mes.dias.length;
-        const nomeMes = new Date(2000, parseInt(mes.mes)-1, 1).toLocaleString('pt-br', { month: 'short' }).toUpperCase();
-        rowMes += `<th class="header-mes" colspan="${colspan}">${nomeMes}</th>`;
-      }
-    }
-    rowMes += `</tr>`;
-    headerRows.push(rowMes);
-
-    // Linha 3: Dias (inclinados em -45°)
-    let rowDia = `<tr>`;
-    for (const grupo of grupos) {
-      for (const mes of grupo.meses) {
-        for (const dia of mes.dias) {
-          const data = dia.dataCompleta;
-          const path = `${document.getElementById('tipo').value}/frequencia/presencas/${data}.txt`;
-          const dataUrl = `https://github.com/${repoPath}/blob/${BRANCH}/${path}`;
-          rowDia += `<th class="data-cell" onclick="window.open('${dataUrl}', '_blank')" title="Abrir presença no GitHub">
-              <span class="dia-texto">${dia.dia}</span>
-          </th>`;
-        }
-      }
-    }
-    rowDia += `</tr>`;
-    headerRows.push(rowDia);
-
-    // Corpo da tabela
-    let bodyRows = '';
-    for (const aluno of alunosOrdenados) {
-      const statsAluno = stats[aluno] || {};
-      const pct = statsAluno.pct_presenca || 0;
-      const canvasId = `freq-${aluno.replace(/\s/g, '_')}-${Date.now()}-${Math.random()}`;
-      const nomeAbreviado = formatarNome(aluno);
-
-      bodyRows += `<tr>`;
-      bodyRows += `<td class="col-nome">${nomeAbreviado}</td>`;
-      bodyRows += `<td class="col-freq" style="--freq-col-left: 0px;">
-        <div class="freq-grafico-container">
-          <canvas id="${canvasId}" width="40" height="40"></canvas>
-        </div>
-      </td>`;
-
-      for (const data of datasDisponiveis) {
-        const presente = presencasPorAluno[aluno]?.[data] || false;
-        const path = `${document.getElementById('tipo').value}/frequencia/presencas/${data}.txt`;
-        const dataUrl = `https://github.com/${repoPath}/blob/${BRANCH}/${path}`;
-        bodyRows += `<td class="data-cell" onclick="window.open('${dataUrl}', '_blank')" title="${aluno} - ${presente ? 'Presente' : 'Ausente'} em ${data} - Clique para ver no GitHub">
-          <span class="${presente ? 'bola-presenca' : 'bola-ausente'}"></span>
-        </td>`;
-      }
-
-      // Célula vazia para o botão + (já no cabeçalho)
-      bodyRows += `<td></td>`;
-      bodyRows += `</tr>`;
-
-      // Desenhar gráfico
-      setTimeout(() => {
-        desenharGrafico(canvasId, pct);
-      }, 20);
-    }
-
-    const html = `<table class="historico-table">
-      <thead>${headerRows.join('')}</thead>
-      <tbody>${bodyRows}</tbody>
-    </table>`;
-    container.innerHTML = html;
-  }
-
-  // ---------- CARREGAR DADOS ----------
-  async function carregarHistorico() {
-    const tipo = document.getElementById("tipo").value;
-    const container = document.getElementById("conteudo-historico");
-    const totalInfo = document.getElementById("total-info");
-
-    container.innerHTML = '<div class="loading">Carregando...</div>';
-    totalInfo.innerHTML = "";
-
-    try {
-      const respStats = await fetch(`/api/presenca/estatisticas?tipo=${tipo}`);
-      const jsonStats = await respStats.json();
-
-      const respAlunos = await fetch(`/api/alunos/carregar?tipo=${tipo}`);
-      const jsonAlunos = await respAlunos.json();
-
-      githubUrl = jsonAlunos.github_url || '';
-      if (githubUrl) {
-        const match = githubUrl.match(/\/blob\/([^\/]+)\//);
-        if (match) BRANCH = match[1];
-      }
-
-      const alunos = jsonAlunos.alunos || [];
-      const stats = jsonStats.stats || {};
-      const totalAulas = jsonStats.total_aulas || 0;
-
-      if (alunos.length === 0) {
-        container.innerHTML = `
-          <div class="no-data">
-            <span class="icon">📋</span>
-            <p>Nenhum aluno cadastrado nesta turma.</p>
-            <p style="font-size: 0.9em; color: #555;">Adicione alunos primeiro.</p>
-          </div>
-        `;
-        return;
-      }
-
-      const respFiles = await fetch(`/api/presenca/listar_arquivos?tipo=${tipo}`);
-      let arquivos = [];
-      let arquivosInfo = {};
-      if (respFiles.ok) {
-        const jsonFiles = await respFiles.json();
-        arquivos = jsonFiles.arquivos || [];
-        for (const arq of arquivos) {
-          arquivosInfo[arq.data] = arq;
-        }
-      }
-
-      const presencasPorAluno = {};
-      const datasDisponiveis = [];
-
-      for (const aluno of alunos) {
-        presencasPorAluno[aluno] = {};
-      }
-
-      for (const arquivo of arquivos) {
-        const dataArquivo = arquivo.data;
-        datasDisponiveis.push(dataArquivo);
-
-        const respPresenca = await fetch(`/api/presenca/carregar?tipo=${tipo}&data=${dataArquivo}`);
-        const jsonPresenca = await respPresenca.json();
-
-        if (jsonPresenca.conteudo) {
-          const presentes = new Set(
-            jsonPresenca.conteudo.split("\n").map(n => n.trim()).filter(Boolean)
-          );
-          for (const aluno of alunos) {
-            presencasPorAluno[aluno][dataArquivo] = presentes.has(aluno);
-          }
-        }
-      }
-
-      datasDisponiveis.sort((a, b) => {
-        const [da, ma, aa] = a.split("-");
-        const [db, mb, ab] = b.split("-");
-        return `${aa}-${ma}-${da}`.localeCompare(`${ab}-${mb}-${db}`);
-      });
-
-      dadosHistorico = {
-        alunos,
-        stats,
-        datasDisponiveis,
-        presencasPorAluno,
-        totalAulas,
-        arquivosInfo
-      };
-
-      renderizarHistorico();
-
-    } catch (error) {
-      console.error("Erro ao carregar:", error);
-      container.innerHTML = `
-        <div class="no-data" style="color: #ff6b6b;">
-          <span class="icon">❌</span>
-          <p>Erro ao carregar: ${error.message}</p>
-        </div>
-      `;
-    }
-  }
-
-  document.getElementById("tipo").addEventListener("change", () => {
-    ordemAtual = { tipo: null, direcao: null };
-    carregarHistorico();
-  });
-
-  carregarHistorico();
 </script>
 </body>
 </html>
