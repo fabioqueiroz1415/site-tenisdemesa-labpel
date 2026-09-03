@@ -1,5 +1,5 @@
 #
-# Labpel - Tênis de Mesa 🏓
+# Labpel - Tênis de Mesa
 
 Este é um site que fiz para ajudar na organização das aulas de tênis de mesa do **Labpel**.
 
